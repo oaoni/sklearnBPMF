@@ -8,12 +8,12 @@ from numpy import linalg as npla
 import random
 import scipy
 
-def load_gi_example(frac):
+def load_gi_example(frac, data_path, side_path):
     """
     loads gi delta data
     """
-    path_dataset = 'MatrixCompletion/data/gi_delta.csv'
-    side_dataset = 'MatrixCompletion/data/gi_delta_side.csv'
+    path_dataset = data_path
+    side_dataset = side_path
 
     M = pd.read_csv(path_dataset,index_col=0)
     side = pd.read_csv(side_dataset,index_col=0)
