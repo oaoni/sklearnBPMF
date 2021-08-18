@@ -22,7 +22,7 @@ class Wrapper(BaseEstimator):
         self.report_freq = report_freq
 
     def fit(self, X_train, X_test, side):
-        #Initialize the training session
+        #Initialize the training session method
         self._makeSession()
         self._makeModel(X_train, X_test, side)
         self.trainSession.init()
