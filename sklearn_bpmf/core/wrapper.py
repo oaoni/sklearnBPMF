@@ -21,7 +21,7 @@ class Wrapper(BaseEstimator):
         self.num_threads = num_threads
         self.report_freq = report_freq
 
-    def fit(self, X_train, y_train, X_test, side):
+    def fit(self, X_train, X_test, side):
         #Initialize the training session
         self._makeSession()
         self._makeModel(X_train, X_test, side)
@@ -32,7 +32,7 @@ class Wrapper(BaseEstimator):
             #Report
             if self.trainSession.getStatus().iter % self.report_freq == 0:
                 #Get test predictions
-                predAvg, predStd = self.predict(None, return_std=True)
+                predAvg, predStd = self.predict(return_std=True)
 
                 testCorr = corr_metric(predAvg, X_test.data)
 
@@ -51,7 +51,7 @@ class Wrapper(BaseEstimator):
 
         return self
 
-    def predict(self, X, return_std=False):
+    def predict(self, return_std=False):
         #Return predicted unobserved values, does not require test data, future: add transform method for
         #making predictions with arbitrary side information and interactions
 
