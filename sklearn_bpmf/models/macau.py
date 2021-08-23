@@ -18,15 +18,15 @@ class Macau(Wrapper):
                          save_freq=save_freq, save_name=save_name, num_threads=num_threads,
                          report_freq=report_freq)
 
-    def _makeModel(self, train_data, test_data, side):
+    def _makeModel(self, train_data, test_data, X_side):
 
         #Add Traiing and test data to training session
         self.trainSession.addTrainAndTest(train_data, test_data,
                                           smurff.AdaptiveNoise(1.0, 10.))
         #Add side information to the training session
-        self.trainSession.addSideInfo(0, side, noise=smurff.FixedNoise(self.side_noise),
+        self.trainSession.addSideInfo(0, X_side, noise=smurff.FixedNoise(self.side_noise),
                                       direct = self.side_direct)
-        self.trainSession.addSideInfo(1, side, noise=smurff.FixedNoise(self.side_noise),
+        self.trainSession.addSideInfo(1, X_side, noise=smurff.FixedNoise(self.side_noise),
                                       direct = self.side_direct)
 
         return self

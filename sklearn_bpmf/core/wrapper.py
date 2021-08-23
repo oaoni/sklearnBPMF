@@ -21,10 +21,13 @@ class Wrapper(BaseEstimator):
         self.num_threads = num_threads
         self.report_freq = report_freq
 
-    def fit(self, X_train, X_test, side):
+        self.train_rmse = None
+        self.test_corr = None
+
+    def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True):
         #Initialize the training session method
         self._makeSession()
-        self._makeModel(X_train, X_test, side)
+        self._makeModel(X_train, X_test, X_side)
         self.trainSession.init()
 
         #Train the model with the observed data
@@ -47,7 +50,16 @@ class Wrapper(BaseEstimator):
 
             pass
 
-        self._makePlots(predAvg, predStd, X_test, testCorr)
+        #Try: except error for improper report freq
+        self.train_rmse = macauStatus.rmse_avg
+        self.test_rmse = macauStatus.rmse_avg
+        self.test_corr = testCorr
+
+        if verbose:
+            print('Final test correlation is: {}'.format(testCorr))
+
+        if make_plot:
+            self._makePlots(predAvg, predStd, X_test, testCorr)
 
         return self
 

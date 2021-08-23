@@ -7,8 +7,9 @@ import networkx as nx
 from numpy import linalg as npla
 import random
 import scipy
+from scipy.cluster.hierarchy import linkage, dendrogram
 
-def load_gi_example(frac, data_path, side_path):
+def load_gi_example(frac, data_path, side_path, cluster=None):
     """
     loads gi delta data
     """
@@ -17,6 +18,13 @@ def load_gi_example(frac, data_path, side_path):
 
     M = pd.read_csv(path_dataset,index_col=0)
     side = pd.read_csv(side_dataset,index_col=0)
+
+    if cluster:
+        linkage_ = linkage(M, method=cluster) #average, ward, single, complete, centroid, weighted, median
+        dendrogram_ = dendrogram(linkage_, no_plot=True)
+        clust_index = dendrogram_['leaves']
+        M = M.iloc[clust_index,clust_index]
+        side = side.iloc[clust_index,:]
 
     #Two functions for sampling from the phenotype matrix
     random.seed(30)
