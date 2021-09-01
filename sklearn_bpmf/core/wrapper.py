@@ -54,7 +54,7 @@ class Wrapper(BaseEstimator):
             pass
 
         # Try: except error for improper report freq
-        self.train_rmse = macauStatus.rmse_avg
+        self.train_rmse = macauStatus.train_rmse
         self.test_rmse = macauStatus.rmse_avg
         self.test_corr = testCorr
 
