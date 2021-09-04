@@ -20,6 +20,9 @@ class Macau(Wrapper):
 
     def _makeModel(self, train_data, test_data, X_side):
 
+        self.train_coords = [train_data.row, train_data.col]
+        self.test_coords = [test_data.row, test_data.col]
+
         #Add Traiing and test data to training session
         self.trainSession.addTrainAndTest(train_data, test_data,
                                           smurff.AdaptiveNoise(1.0, 10.))

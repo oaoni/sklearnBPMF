@@ -82,6 +82,22 @@ class Wrapper(BaseEstimator):
         else:
             return predAvg
 
+    def predictTrain(self, return_std=False):
+        # Return predicted observed values
+
+        #Get train predictions
+        predictor = self.trainSession.makePredictSession()
+        p_all = predictor.predict_all()
+        p_all_avg = sum(p_all) / len(p_all)
+        predAvg = p_all_avg[self.train_coords[0],self.train_coords[1]]
+
+        if return_std:
+            predVar = np.var([p[self.train_coords[0], self.train_coords[1]] for p in p_all],axis=0)
+            predStd = np.square(predVar)
+            return predAvg, predStd
+        else:
+            return predAvg
+
     def _makePlots(self, predAvg, predStd, X_test, testCorr, saveplot=True):
 
         fig, ax = plt.subplots(3, 2, figsize=(15, 20))
