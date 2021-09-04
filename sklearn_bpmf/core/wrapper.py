@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import smurff
+import os
 from sklearn.base import BaseEstimator
 
 from sklearn_bpmf.core import corr_metric
@@ -152,6 +153,10 @@ class Wrapper(BaseEstimator):
         return self
 
     def _makeSession(self):
+        #if exists, replace
+        if os.path.isfile(self.save_name):
+            os.remove(self.save_name)
+
         self.trainSession = smurff.TrainSession(
             priors=[self.prior, self.prior],
             num_latent=self.num_latent,
