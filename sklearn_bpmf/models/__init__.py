@@ -1,1 +1,1 @@
-from .macau import Macau
+from .macau import Macau, BPMF
