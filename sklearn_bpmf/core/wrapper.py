@@ -39,7 +39,7 @@ class Wrapper(BaseEstimator):
             # Report
             if self.trainSession.getStatus().iter % self.report_freq == 0:
                 # Get test predictions
-                predAvg, predStd = self.predict(return_std=True)
+                predAvg, predStd, predCoord = self.predict(return_std=True)
 
                 testCorr = corr_metric(predAvg, X_test.data)
 
@@ -75,13 +75,14 @@ class Wrapper(BaseEstimator):
         # Get test predictions
         predictions = self.trainSession.getTestPredictions()
         predAvg = np.array([p.pred_avg for p in predictions])
+        predCoord = [p.coords for p in predictions]
 
         if return_std:
             predVar = np.array([np.var(p.pred_all) for p in predictions])
             predStd = np.array([np.sqrt(p) for p in predVar])
-            return predAvg, predStd
+            return predAvg, predStd, predCoord
         else:
-            return predAvg
+            return predAvg, predCoord
 
     def predictTrain(self, return_std=False):
         # Return predicted observed values
