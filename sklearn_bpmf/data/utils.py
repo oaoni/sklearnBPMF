@@ -9,6 +9,35 @@ import random
 import scipy
 from scipy.cluster.hierarchy import linkage, dendrogram
 
+import os
+import tempfile
+import scipy.io as sio
+from hashlib import sha256
+
+try:
+    import urllib.request as urllib_request  # for Python 3
+except ImportError:
+    import urllib2 as urllib_request  # for Python 2
+
+urls = {
+        "chembl-IC50-346targets.mm" :
+        (
+            "http://homes.esat.kuleuven.be/~jsimm/chembl-IC50-346targets.mm",
+            "10c3e1f989a7a415a585a175ed59eeaa33eff66272d47580374f26342cddaa88",
+        ),
+
+        "chembl-IC50-compound-feat.mm" :
+        (
+            "http://homes.esat.kuleuven.be/~jsimm/chembl-IC50-compound-feat.mm",
+            "f9fe0d296272ef26872409be6991200dbf4884b0cf6c96af8892abfd2b55e3bc",
+        ),
+        "pkis2-compound-target-feat.xlsx":
+        (
+            "https://doi.org/10.1371/journal.pone.0181585.s004",
+            "48ead22a1f860cd0d5096fa87d5acd329f722fe8d65e693bb0be682a333e2a2c"
+        )
+}
+
 def load_gi_example(frac, data_path, side_path, cluster=None):
     """
     loads gi delta data
@@ -158,3 +187,56 @@ def graph_laplacian(W):
     L = D - W
 
     return L
+
+def load_one(filename):
+    (url, expected_sha) =  urls[filename]
+
+    with tempfile.TemporaryDirectory() as tmpdirname:
+            output = os.path.join(tmpdirname, filename)
+            urllib_request.urlretrieve(url, output)
+            actual_sha = sha256(open(output, "rb").read()).hexdigest()
+            assert actual_sha == expected_sha
+            matrix = sio.mmread(output)
+
+    return matrix
+
+def load_xlsx(filename):
+    (url, expected_sha) =  urls[filename]
+
+    with tempfile.TemporaryDirectory() as tmpdirname:
+            output = os.path.join(tmpdirname, filename)
+            urllib_request.urlretrieve(url, output)
+            actual_sha = sha256(open(output, "rb").read()).hexdigest()
+            assert actual_sha == expected_sha
+            matrix = pd.read_excel(output, sheet_name=None,)
+
+    return matrix
+
+def load_chembl():
+    """Downloads a small subset of the ChEMBL dataset.
+    Returns
+    -------
+    ic50_train: sparse matrix
+        sparse train matrix
+    ic50_test: sparse matrix
+        sparse test matrix
+    side: sparse matrix
+        sparse row features
+    """
+
+    # load bioactivity and features
+    ic50 = load_one("chembl-IC50-346targets.mm")
+    side = load_one("chembl-IC50-compound-feat.mm")
+
+    return (ic50, side)
+
+def load_pkis2():
+    """Downloads a small subset of the PKIS2 dataset.
+    Returns
+    -------
+    """
+
+    # load bioactivity and features
+    pkis = load_xlsx("pkis2-compound-target-feat.xlsx")
+
+    return pkis
