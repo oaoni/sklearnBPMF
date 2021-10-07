@@ -41,6 +41,8 @@ class BPMF(Wrapper):
                      side_noise=5, side_direct = True, num_threads=1,
                      report_freq=1000):
 
+        self.side_noise = 'N/A'
+
         """Constructor""" #Initialize wrapper
         Wrapper.__init__(self, prior="normal", num_latent=num_latent, burnin=burnin,
                          num_samples=num_samples, verbose=verbose, checkpoint_freq=checkpoint_freq,
