@@ -67,6 +67,30 @@ def load_gi_example(frac, data_path, side_path, cluster=None):
 
     return [M,S_train,S_test,M_train,M_test],side
 
+def saveTrainTestH5(data_dict, fname='matrix_data.h5'):
+    s = pd.HDFStore(fname) # Ideally, check if exists first
+
+    for key, value in data_dict.items():
+        try:
+            s[key] = value
+        except TypeError:
+            s[key] = pd.DataFrame(value)
+
+    print('Pandas h5py file saved to {}'.format(fname))
+    s.close()
+
+def loadTrainTestH5(fname):
+    data_dict = {}
+
+    s = pd.HDFStore(fname)
+    h5data = [x.split('/')[1] for x in s.keys()]
+
+    for key in h5data:
+        data_dict[key] = s.get(key)
+
+    s.close()
+    return data_dict
+
 def upper_triangle(M, k=1):
     """Return the upper triangular part of a matrix in stacked format (i.e. as a vector)
     """
