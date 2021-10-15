@@ -88,7 +88,7 @@ class Wrapper(BaseEstimator):
                                    rmse_avg = macauStatus.rmse_avg,
                                    rmse_lsample = macauStatus.rmse_1sample,
                                    pred_avg = predAvg,
-                                   pred_var = predStd)
+                                   pred_std = predStd)
 
         return self.train_iter
 
