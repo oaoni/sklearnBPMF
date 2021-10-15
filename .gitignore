@@ -1,0 +1,13 @@
+#python temporary files
+__pycache__/
+*.pyc
+*.DS_Store
+.ipynb_checkpoints
+.idea
+._*.py
+
+LICENSE
+*.ipynb
+
+#data
+/data/*.csv
