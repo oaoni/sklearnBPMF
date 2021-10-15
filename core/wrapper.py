@@ -4,7 +4,7 @@ import smurff
 import os
 from sklearn.base import BaseEstimator
 
-from sklearn_bpmf.core import corr_metric
+from sklearnBPMF.core import corr_metric
 
 
 class Wrapper(BaseEstimator):

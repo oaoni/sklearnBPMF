@@ -1,5 +1,5 @@
 import smurff
-from sklearn_bpmf.core import Wrapper
+from sklearnBPMF.core import Wrapper
 
 class Macau(Wrapper):
     def __init__(self, num_latent=20, burnin=40,
@@ -37,11 +37,11 @@ class Macau(Wrapper):
 class BPMF(Wrapper):
     def __init__(self, num_latent=20, burnin=40,
                      num_samples=500, verbose=0, checkpoint_freq=1,
-                     save_freq = -1, save_name="macau_trainable.hdf5",
-                     side_noise=5, side_direct = True, num_threads=1,
+                     save_freq = -1, save_name="bpmf_trainable.hdf5",
+                     side_noise='N/A', side_direct = True, num_threads=1,
                      report_freq=1000):
 
-        self.side_noise = 'N/A'
+        self.side_noise = side_noise
 
         """Constructor""" #Initialize wrapper
         Wrapper.__init__(self, prior="normal", num_latent=num_latent, burnin=burnin,
