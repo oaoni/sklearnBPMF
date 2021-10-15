@@ -27,6 +27,7 @@ class Wrapper(BaseEstimator):
 
         self.train_rmse = None
         self.test_corr = None
+        self.train_iter = 0
 
     def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True):
         # Initialize the training session method
@@ -65,16 +66,19 @@ class Wrapper(BaseEstimator):
         self._makeModel(X_train, X_test, X_side)
         self.trainSession.init()
 
-    def train_step():
+        self.X_train = X_train
+        self.X_test = X_test
+
+    def train_step(self):
 
         self.trainSession.step()
 
-        train_iter = self.trainSession.getStatus().iter
-        if train_iter % self.report_freq == 0:
+        self.train_iter = self.trainSession.getStatus().iter
+        if self.train_iter % self.report_freq == 0:
             # Get test predictions
             predAvg, predStd, predCoord = self.predict(return_std=True)
 
-            testCorr = corr_metric(predAvg, X_test.data)
+            testCorr = corr_metric(predAvg, self.X_test.data)
 
             macauStatus = self.trainSession.getStatus()
 
@@ -84,9 +88,9 @@ class Wrapper(BaseEstimator):
                                    rmse_avg = macauStatus.rmse_avg,
                                    rmse_lsample = macauStatus.rmse_1sample,
                                    pred_avg = predAvg,
-                                   pred_var = predVar)
+                                   pred_var = predStd)
 
-        return train_iter
+        return self.train_iter
 
     def predict(self, return_std=False):
         # Return predicted unobserved values, does not require test data,
