@@ -30,9 +30,7 @@ class Wrapper(BaseEstimator):
 
     def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True):
         # Initialize the training session method
-        self._makeSession()
-        self._makeModel(X_train, X_test, X_side)
-        self.trainSession.init()
+        self.addData(X_train, X_test, X_side)
 
         # Train the model with the observed data
         while self.trainSession.step():
@@ -44,13 +42,7 @@ class Wrapper(BaseEstimator):
                 testCorr = corr_metric(predAvg, X_test.data)
 
                 macauStatus = self.trainSession.getStatus()
-                # Report metrics to ray
-                # tune.report(test_corr = testCorr,
-                #             train_rmse = macauStatus.train_rmse,
-                #             rmse_avg = macauStatus.rmse_avg,
-                #             rmse_lsample = macauStatus.rmse_1sample,
-                #             pred_avg = predAvg,
-                #             pred_var = predVar)
+
 
             pass
 
@@ -66,6 +58,35 @@ class Wrapper(BaseEstimator):
             self._makePlots(predAvg, predStd, X_test, testCorr)
 
         return self
+
+    def addData(self, X_train, X_test, X_side):
+
+        self._makeSession()
+        self._makeModel(X_train, X_test, X_side)
+        self.trainSession.init()
+
+    def train_step():
+
+        self.trainSession.step()
+
+        train_iter = self.trainSession.getStatus().iter
+        if train_iter % self.report_freq == 0:
+            # Get test predictions
+            predAvg, predStd, predCoord = self.predict(return_std=True)
+
+            testCorr = corr_metric(predAvg, X_test.data)
+
+            macauStatus = self.trainSession.getStatus()
+
+            #Assign current training metrics
+            self.train_dict = dict(test_corr = testCorr,
+                                   train_rmse = macauStatus.train_rmse,
+                                   rmse_avg = macauStatus.rmse_avg,
+                                   rmse_lsample = macauStatus.rmse_1sample,
+                                   pred_avg = predAvg,
+                                   pred_var = predVar)
+
+        return train_iter
 
     def predict(self, return_std=False):
         # Return predicted unobserved values, does not require test data,
