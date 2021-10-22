@@ -27,36 +27,27 @@ class Wrapper(BaseEstimator):
 
         self.train_rmse = None
         self.test_corr = None
-        self.train_iter = 0
+        self.train_iter = None
+        self.train_dict = None
 
     def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True):
         # Initialize the training session method
         self.addData(X_train, X_test, X_side)
 
         # Train the model with the observed data
-        while self.trainSession.step():
-            # Report
-            if self.trainSession.getStatus().iter % self.report_freq == 0:
-                # Get test predictions
-                predAvg, predStd, predCoord = self.predict(return_std=True)
-
-                testCorr = corr_metric(predAvg, X_test.data)
-
-                macauStatus = self.trainSession.getStatus()
-
-
+        while self.train_step():
             pass
 
-        # Try: except error for improper report freq
-        self.train_rmse = macauStatus.train_rmse
-        self.test_rmse = macauStatus.rmse_avg
-        self.test_corr = testCorr
+        self.store_metrics(self.num_samples)
+        self.train_rmse = self.train_dict['train_rmse'] # Deprecated in next version
+        self.test_rmse = self.train_dict['rmse_avg'] # Deprecated in next version
+        self.test_corr = self.train_dict['test_corr'] # Deprecated in next version
 
         if verbose:
-            print('Final test correlation is: {}'.format(testCorr))
+            print('Final test correlation is: {}'.format(self.train_dict['test_corr']))
 
         if make_plot:
-            self._makePlots(predAvg, predStd, X_test, testCorr)
+            self._makePlots(self.train_dict['pred_avg'], self.train_dict['pred_std'], X_test, self.train_dict['test_corr'])
 
         return self
 
@@ -74,23 +65,27 @@ class Wrapper(BaseEstimator):
         self.trainSession.step()
 
         self.train_iter = self.trainSession.getStatus().iter
+
         if self.train_iter % self.report_freq == 0:
-            # Get test predictions
-            predAvg, predStd, predCoord = self.predict(return_std=True)
+            self.store_metrics(self.train_iter)
 
-            testCorr = corr_metric(predAvg, self.X_test.data)
+        return self.train_iter <= self.num_samples
 
-            macauStatus = self.trainSession.getStatus()
+    def store_metrics(self, train_iter):
+        # Get test predictions
+        predAvg, predStd, predCoord = self.predict(return_std=True)
+        testCorr = corr_metric(predAvg, self.X_test.data)
+        macauStatus = self.trainSession.getStatus()
 
-            #Assign current training metrics
-            self.train_dict = dict(test_corr = testCorr,
-                                   train_rmse = macauStatus.train_rmse,
-                                   rmse_avg = macauStatus.rmse_avg,
-                                   rmse_lsample = macauStatus.rmse_1sample,
-                                   pred_avg = predAvg,
-                                   pred_std = predStd)
-
-        return self.train_iter
+        #Assign current training metrics
+        self.train_dict = dict(train_iter = train_iter,
+                               test_corr = testCorr,
+                               train_rmse = macauStatus.train_rmse,
+                               rmse_avg = macauStatus.rmse_avg,
+                               rmse_lsample = macauStatus.rmse_1sample,
+                               pred_avg = predAvg,
+                               pred_std = predStd,
+                               pred_coord = predCoord)
 
     def predict(self, return_std=False):
         # Return predicted unobserved values, does not require test data,
