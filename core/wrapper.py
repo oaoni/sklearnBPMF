@@ -49,6 +49,12 @@ class Wrapper(BaseEstimator):
         if make_plot:
             self._makePlots(self.train_dict['pred_avg'], self.train_dict['pred_std'], X_test, self.train_dict['test_corr'])
 
+        #Store training set predictions
+        trainAvg, trainStd, trainCoord = self.predictTrain(return_std=True)
+        self.train_dict['trainAvg'] = trainAvg
+        self.train_dict['trainStd'] = trainStd
+        self.train_dict['trainCoord'] = trainCoord
+
         return self
 
     def addData(self, X_train, X_test, X_side):
@@ -112,13 +118,14 @@ class Wrapper(BaseEstimator):
         p_all = predictor.predict_all()
         p_all_avg = sum(p_all) / len(p_all)
         predAvg = p_all_avg[self.train_coords[0],self.train_coords[1]]
+        predCoord = list(zip(*self.train_coords))
 
         if return_std:
             predVar = np.var([p[self.train_coords[0], self.train_coords[1]] for p in p_all],axis=0)
             predStd = np.square(predVar)
-            return predAvg, predStd
+            return predAvg, predStd, predCoord
         else:
-            return predAvg
+            return predAvg, predCoord
 
     def _makePlots(self, predAvg, predStd, X_test, testCorr, saveplot=True):
 
