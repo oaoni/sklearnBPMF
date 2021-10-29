@@ -7,6 +7,8 @@ import networkx as nx
 from numpy import linalg as npla
 import random
 import scipy
+import smurff
+from scipy.sparse import coo_matrix
 from scipy.cluster.hierarchy import linkage, dendrogram
 
 import os
@@ -264,3 +266,14 @@ def load_pkis2():
     pkis = load_xlsx("pkis2-compound-target-feat.xlsx")
 
     return pkis
+
+def smurffNormalizeData(M_train, M_test):
+
+    train_centered, global_mean, _ = smurff.center_and_scale(coo_matrix(M_train),
+                                          "global", with_mean = True, with_std = False)
+
+    test_centered = coo_matrix(M_test)
+    test_centered.data -= global_mean # only touch non-zeros
+    all_centered = train_centered + test_centered
+
+    return train_centered, test_centered, all_centered
