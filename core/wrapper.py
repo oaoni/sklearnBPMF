@@ -51,9 +51,9 @@ class Wrapper(BaseEstimator):
 
         #Store training set predictions
         trainAvg, trainStd, trainCoord = self.predictTrain(return_std=True)
-        self.train_dict['trainAvg'] = trainAvg
-        self.train_dict['trainStd'] = trainStd
-        self.train_dict['trainCoord'] = trainCoord
+        self.train_dict['train_avg'] = trainAvg
+        self.train_dict['train_std'] = trainStd
+        self.train_dict['train_coord'] = trainCoord
 
         return self
 
