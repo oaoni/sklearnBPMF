@@ -21,7 +21,7 @@ class Wrapper(BaseEstimator):
         self.verbose = verbose
         self.checkpoint_freq = checkpoint_freq
         self.save_freq = save_freq
-        self.save_name = save_name
+        self.save_name = save_name + '.hdf5'
         self.num_threads = num_threads
         self.report_freq = report_freq
 

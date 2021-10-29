@@ -4,7 +4,7 @@ from sklearnBPMF.core import Wrapper
 class Macau(Wrapper):
     def __init__(self, num_latent=20, burnin=40,
                      num_samples=500, verbose=0, checkpoint_freq=1,
-                     save_freq = -1, save_name="macau_trainable.hdf5",
+                     save_freq = -1, save_name="macau_trainable",
                      side_noise=5, side_direct = True, num_threads=1,
                      report_freq=1000):
 
@@ -37,7 +37,7 @@ class Macau(Wrapper):
 class BPMF(Wrapper):
     def __init__(self, num_latent=20, burnin=40,
                      num_samples=500, verbose=0, checkpoint_freq=1,
-                     save_freq = -1, save_name="bpmf_trainable.hdf5",
+                     save_freq = -1, save_name="bpmf_trainable",
                      side_noise='N/A', side_direct = True, num_threads=1,
                      report_freq=1000):
 
