@@ -57,19 +57,44 @@ def load_gi_example(frac, data_path, side_path, cluster=None):
         M = M.iloc[clust_index,clust_index]
         side = side.iloc[clust_index,:]
 
+    M,S_train,S_test,M_train,M_test = makeTrainTest(M,frac,use_upper=True)
+
+    return [M,S_train,S_test,M_train,M_test],side
+
+def makeTrainTest(M,frac,use_upper=True):
+
     #Two functions for sampling from the phenotype matrix
     random.seed(30)
 
     #Sample a percentage of the genes
-    M_train, M_test, S_train, S_test = sample_mask(M,frac,use_upper=True)
+    M_train, M_test, S_train, S_test = sample_mask(M,frac,use_upper=use_upper)
     M_train = M_train.values
     M_test = M_test.values
     S_train = S_train.values
     S_test = S_test.values
 
-    return [M,S_train,S_test,M_train,M_test],side
+    return M,S_train,S_test,M_train,M_test
+
+def saveDataFrameH5(data_dict, fname='matrix_data.h5'):
+
+    # Check if fname exists already, and raise error
+    if os.path.isfile(fname):
+        raise FileExistsError
+
+    s = pd.HDFStore(fname)
+
+    for key, value in data_dict.items():
+        try:
+            s[key] = value
+        except TypeError:
+            s[key] = pd.DataFrame(value)
+
+    print('Pandas h5py file saved to {}'.format(fname))
+    s.close()
+
 
 def saveTrainTestH5(data_dict, fname='matrix_data.h5'):
+    print("Function deprecated, replaced by saveDataFrameH5")
     s = pd.HDFStore(fname) # Ideally, check if exists first
 
     for key, value in data_dict.items():
@@ -81,7 +106,23 @@ def saveTrainTestH5(data_dict, fname='matrix_data.h5'):
     print('Pandas h5py file saved to {}'.format(fname))
     s.close()
 
+def loadDataFrameH5(fname):
+    data_dict = {}
+
+    # Check if fname exists
+    if not os.path.isfile(fname):
+        raise FileNotFoundError
+
+    with pd.HDFStore(fname) as s:
+        h5data = [x.split('/')[1] for x in s.keys()]
+
+        for key in h5data:
+            data_dict[key] = s.get(key)
+
+    return data_dict
+
 def loadTrainTestH5(fname):
+    print("Function deprecated, replaced by loadDataFrameH5")
     data_dict = {}
 
     s = pd.HDFStore(fname)
