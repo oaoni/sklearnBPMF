@@ -6,7 +6,7 @@ class Macau(Wrapper):
                      num_samples=500, verbose=0, checkpoint_freq=1,
                      save_freq = -1, save_name="macau_trainable",
                      side_noise=5, side_direct = True, num_threads=1,
-                     report_freq=1000):
+                     report_freq=1000,low_memory_metrics=True):
 
         #Macau Hyperparameters
         self.side_noise = side_noise
@@ -16,7 +16,7 @@ class Macau(Wrapper):
         Wrapper.__init__(self, prior="macau", num_latent=num_latent, burnin=burnin,
                          num_samples=num_samples, verbose=verbose, checkpoint_freq=checkpoint_freq,
                          save_freq=save_freq, save_name=save_name, num_threads=num_threads,
-                         report_freq=report_freq)
+                         report_freq=report_freq,low_memory_metrics=low_memory_metrics)
 
     def _makeModel(self, train_data, test_data, X_side):
 
@@ -39,7 +39,7 @@ class BPMF(Wrapper):
                      num_samples=500, verbose=0, checkpoint_freq=1,
                      save_freq = -1, save_name="bpmf_trainable",
                      side_noise='N/A', side_direct = True, num_threads=1,
-                     report_freq=1000):
+                     report_freq=1000,low_memory_metrics=True):
 
         self.side_noise = side_noise
 
@@ -47,7 +47,7 @@ class BPMF(Wrapper):
         Wrapper.__init__(self, prior="normal", num_latent=num_latent, burnin=burnin,
                          num_samples=num_samples, verbose=verbose, checkpoint_freq=checkpoint_freq,
                          save_freq=save_freq, save_name=save_name, num_threads=num_threads,
-                         report_freq=report_freq)
+                         report_freq=report_freq,low_memory_metrics=low_memory_metrics)
 
     def _makeModel(self, train_data, test_data, X_side):
 

@@ -12,7 +12,7 @@ class Wrapper(BaseEstimator):
 
     def __init__(self, prior, num_latent, burnin, num_samples,
                  verbose, checkpoint_freq, save_freq, save_name,
-                 num_threads, report_freq):
+                 num_threads, report_freq, low_memory_metrics):
 
         self.prior = prior
         self.num_latent = num_latent
@@ -24,6 +24,7 @@ class Wrapper(BaseEstimator):
         self.save_name = save_name + '.hdf5'
         self.num_threads = num_threads
         self.report_freq = report_freq
+        self.low_memory_metrics = low_memory_metrics
 
         self.train_rmse = None
         self.test_corr = None
@@ -73,25 +74,44 @@ class Wrapper(BaseEstimator):
         self.sample_iter = self.trainSession.getStatus().iter
 
         if self.sample_iter % self.report_freq == 0:
-            self.store_metrics(self.sample_iter)
+            self.store_metrics(self.sample_iter, self.low_memory_metrics)
 
         return self.sample_iter <= self.num_samples
 
-    def store_metrics(self, sample_iter):
-        # Get test predictions
-        predAvg, predStd, predCoord = self.predict(return_std=True)
-        testCorr = corr_metric(predAvg, self.X_test.data)
+    def store_metrics(self, sample_iter, low_memory=True):
+
         macauStatus = self.trainSession.getStatus()
 
-        #Assign current training metrics
-        self.train_dict = dict(sample_iter = sample_iter,
-                               test_corr = testCorr,
-                               train_rmse = macauStatus.train_rmse,
-                               rmse_avg = macauStatus.rmse_avg,
-                               rmse_lsample = macauStatus.rmse_1sample,
-                               pred_avg = predAvg,
-                               pred_std = predStd,
-                               pred_coord = predCoord)
+        if (low_memory) and (self.sample_iter != self.num_samples):
+            # #Assign current training metrics w/o test predictions
+            # self.train_dict = dict(sample_iter = self.sample_iter,
+            #                        test_corr = np.nan,
+            #                        train_rmse = macauStatus.train_rmse,
+            #                        rmse_avg = macauStatus.rmse_avg,
+            #                        rmse_lsample = macauStatus.rmse_1sample,
+            #                        pred_avg = np.nan,
+            #                        pred_std = np.nan,
+            #                        pred_coord = np.nan)
+
+            self.train_dict = dict(sample_iter = self.sample_iter,
+                                   train_rmse = macauStatus.train_rmse,
+                                   rmse_avg = macauStatus.rmse_avg,
+                                   rmse_lsample = macauStatus.rmse_1sample)
+
+        else:
+            # Get test predictions
+            predAvg, predStd, predCoord = self.predict(return_std=True)
+            testCorr = corr_metric(predAvg, self.X_test.data)
+
+            #Assign current training metrics
+            self.train_dict = dict(sample_iter = sample_iter,
+                                   test_corr = testCorr,
+                                   train_rmse = macauStatus.train_rmse,
+                                   rmse_avg = macauStatus.rmse_avg,
+                                   rmse_lsample = macauStatus.rmse_1sample,
+                                   pred_avg = predAvg,
+                                   pred_std = predStd,
+                                   pred_coord = predCoord)
 
     def predict(self, return_std=False):
         # Return predicted unobserved values, does not require test data,
