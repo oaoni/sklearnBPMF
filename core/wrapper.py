@@ -12,7 +12,7 @@ class Wrapper(BaseEstimator):
 
     def __init__(self, prior, num_latent, burnin, num_samples,
                  verbose, checkpoint_freq, save_freq, save_name,
-                 num_threads, report_freq, low_memory_metrics):
+                 num_threads, report_freq, metric_mode):
 
         self.prior = prior
         self.num_latent = num_latent
@@ -24,7 +24,7 @@ class Wrapper(BaseEstimator):
         self.save_name = save_name + '.hdf5'
         self.num_threads = num_threads
         self.report_freq = report_freq
-        self.low_memory_metrics = low_memory_metrics
+        self.metric_mode = metric_mode
 
         self.train_rmse = None
         self.test_corr = None
@@ -74,25 +74,23 @@ class Wrapper(BaseEstimator):
         self.sample_iter = self.trainSession.getStatus().iter
 
         if self.sample_iter % self.report_freq == 0:
-            self.store_metrics(self.sample_iter, self.low_memory_metrics)
+            self.store_metrics(self.sample_iter, self.metric_mode)
 
         return self.sample_iter <= self.num_samples
 
-    def store_metrics(self, sample_iter, low_memory=True):
+    def store_metrics(self, sample_iter, metric_mode=0):
 
         macauStatus = self.trainSession.getStatus()
 
-        if (low_memory) and (self.sample_iter != self.num_samples):
+        if (metric_mode == 0): # Low memory mode
             # #Assign current training metrics w/o test predictions
-            # self.train_dict = dict(sample_iter = self.sample_iter,
-            #                        test_corr = np.nan,
-            #                        train_rmse = macauStatus.train_rmse,
-            #                        rmse_avg = macauStatus.rmse_avg,
-            #                        rmse_lsample = macauStatus.rmse_1sample,
-            #                        pred_avg = np.nan,
-            #                        pred_std = np.nan,
-            #                        pred_coord = np.nan)
+            self.train_dict = dict(sample_iter = self.sample_iter,
+                                   train_rmse = macauStatus.train_rmse,
+                                   rmse_avg = macauStatus.rmse_avg,
+                                   rmse_lsample = macauStatus.rmse_1sample)
 
+        elif (metric_mode == 1) and (self.sample_iter != self.num_samples): # Low memory mode, but final high memory
+            # #Assign current training metrics w/o test predictions
             self.train_dict = dict(sample_iter = self.sample_iter,
                                    train_rmse = macauStatus.train_rmse,
                                    rmse_avg = macauStatus.rmse_avg,
