@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from scipy.stats import entropy
 from scipy.linalg import svd
 from sklearn.metrics.pairwise import pairwise_kernels
@@ -10,21 +11,21 @@ def corr_metric(predicted, measured):
 
 
 def effective_rank(m):
-"""
-effective rank of matrix = entropy of singular value distribution
-one heuristic for choosing number of components to keep
-"""
+    """
+    effective rank of matrix = entropy of singular value distribution
+    one heuristic for choosing number of components to keep
+    """
 
     u, s, vt = svd(m)
     p = s/s.sum()
     return np.exp(entropy(p))
 
 def rank_k_leverage_scores(m, k, kernel=None, **kwargs):
-"""
-row leverage scores of a matrix
-truncate svd to rank k, take left singular vectors, square, normalize by sum
-kernel is present in case you want to do kernelized version = svd on pairwise distance matrix
-"""
+    """
+    row leverage scores of a matrix
+    truncate svd to rank k, take left singular vectors, square, normalize by sum
+    kernel is present in case you want to do kernelized version = svd on pairwise distance matrix
+    """
 
     if kernel is None:
         u, s, vt = svd(m)
@@ -37,9 +38,9 @@ kernel is present in case you want to do kernelized version = svd on pairwise di
     return lev_scores/lev_scores.sum()
 
 def sampling_distribution(m, k, kernel=None, **kwargs):
-"""
-def produce a sampling distribution for a *symmetric* matrix
-"""
+    """
+    def produce a sampling distribution for a *symmetric* matrix
+    """
 
     lev_scores = rank_k_leverage_scores(m, k, kernel, **kwargs)
     lev_sampling = pd.DataFrame(np.outer(lev_scores, lev_scores),
@@ -47,15 +48,15 @@ def produce a sampling distribution for a *symmetric* matrix
     return lev_scores, lev_sampling
 
 def leverage_update(m, k, n=1, kernel=None, **kwargs):
-"""
-predict which entry to read next based on leverage scores
-assumes matrix is symmetric, computes row leverage scores to produce a probability distrbituion on rows,
-and then produces a sampling distribution over the matrix by taking the outer product
-parameters: k = rank to reduce to when computing leverage scores
-(can potentially use effective_rank above or say effective_rank/2 as heuristics)
-n = number of indices to return
-returns flat indices that are always in the upper triangle of the matrix
-"""
+    """
+    predict which entry to read next based on leverage scores
+    assumes matrix is symmetric, computes row leverage scores to produce a probability distrbituion on rows,
+    and then produces a sampling distribution over the matrix by taking the outer product
+    parameters: k = rank to reduce to when computing leverage scores
+    (can potentially use effective_rank above or say effective_rank/2 as heuristics)
+    n = number of indices to return
+    returns flat indices that are always in the upper triangle of the matrix
+    """
 
     lev_scores, lev_sampling = sampling_distribution(m, k, kernel=None, **kwargs)
     # take only entries in upper triangle
