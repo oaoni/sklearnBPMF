@@ -75,7 +75,7 @@ def makeTrainTest(M,frac,use_upper=True):
 
     return M,S_train,S_test,M_train,M_test
 
-def saveDataFrameH5(data_dict, fname='matrix_data.h5'):
+def saveDataFrameH5(data_dict, fname='matrix_data.h5', verbose=True):
 
     # Check if fname exists already, and raise error
     if os.path.isfile(fname):
@@ -89,7 +89,9 @@ def saveDataFrameH5(data_dict, fname='matrix_data.h5'):
         except TypeError:
             s[key] = pd.DataFrame(value)
 
-    print('Pandas h5py file saved to {}'.format(fname))
+    if verbose:
+        print('Pandas h5py file saved to {}'.format(fname))
+        
     s.close()
 
 
