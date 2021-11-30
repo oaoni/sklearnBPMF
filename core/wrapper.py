@@ -40,14 +40,14 @@ class Wrapper(BaseEstimator):
             pass
 
         #self.store_metrics(self.num_samples)
-        self.train_rmse = self.train_dict['train_rmse'] # Deprecated in next version
-        self.test_rmse = self.train_dict['rmse_avg'] # Deprecated in next version
-        self.test_corr = self.train_dict['test_corr'] # Deprecated in next version
+        # self.train_rmse = self.train_dict['train_rmse'] # Deprecated in next version
+        # self.test_rmse = self.train_dict['rmse_avg'] # Deprecated in next version
+        # self.test_corr = self.train_dict['test_corr'] # Deprecated in next version
 
-        if verbose:
+        if (verbose) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
             print('Final test correlation is: {}'.format(self.train_dict['test_corr']))
 
-        if make_plot:
+        if (make_plot) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
             self._makePlots(self.train_dict['pred_avg'], self.train_dict['pred_std'], X_test, self.train_dict['test_corr'])
 
         #Store training set predictions
