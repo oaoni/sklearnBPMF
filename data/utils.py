@@ -61,13 +61,15 @@ def load_gi_example(frac, data_path, side_path, cluster=None):
 
     return [M,S_train,S_test,M_train,M_test],side
 
-def makeTrainTest(M,frac,use_upper=True):
+def makeTrainTest(M,frac,use_upper=True,avoid_diag=False,weights=None,diag_for_trainset=False):
 
     #Two functions for sampling from the phenotype matrix
     random.seed(30)
 
     #Sample a percentage of the genes
-    M_train, M_test, S_train, S_test = sample_mask(M,frac,use_upper=use_upper)
+    M_train, M_test, S_train, S_test = sample_mask(M,frac,use_upper=use_upper,
+                                                    avoid_diag=avoid_diag,weights=weights,
+                                                    diag_for_trainset=diag_for_trainset)
     M_train = M_train.values
     M_test = M_test.values
     S_train = S_train.values
@@ -91,7 +93,7 @@ def saveDataFrameH5(data_dict, fname='matrix_data.h5', verbose=True):
 
     if verbose:
         print('Pandas h5py file saved to {}'.format(fname))
-        
+
     s.close()
 
 
@@ -144,19 +146,32 @@ def upper_triangle(M, k=1):
     # will not behave as expected!!
     return M.stack(dropna=False).loc[keep]
 
-def sample_mask(M,frac,use_upper=False,use_index=False,random_state=np.random.RandomState(30)):
-    """ Samples a fraction of marix elements
+def sample_mask(M,frac,use_upper=False,use_index=False,
+                random_state=np.random.RandomState(30),
+                avoid_diag=False,weights=None,
+                diag_for_trainset=False):
+    """ Samples a fraction of marix elements # Seperate matrices for sampling and selecting data with weights
     returns: train/test matrix (M), and Mask (S)
     """
 
     if use_upper:
+        k = 1 if avoid_diag else 0
+        weights = weights.stack(dropna=False) if isinstance(weights,pd.DataFrame) else None
+
         #Samples from upper triangular. For symmetrical relational matrices.
-        multInd = upper_triangle(M, k=0).sample(frac=frac, replace=False,
-                                               random_state=random_state).index
+        multInd = upper_triangle(M, k=k).sample(frac=frac, replace=False,
+                                                random_state=random_state,
+                                                weights=weights).index
 
         #Initialize indicators
         S_train = pd.DataFrame(0, index=M.index, columns=M.columns)
         S_test = pd.DataFrame(1, index=M.index, columns=M.columns)
+
+        if avoid_diag:
+            np.fill_diagonal(S_test.values, 0)
+
+        if diag_for_trainset:
+            np.fill_diagonal(S_train.values, 1)
 
         for Ind in multInd:
             S_train.loc[Ind] = 1
@@ -164,7 +179,6 @@ def sample_mask(M,frac,use_upper=False,use_index=False,random_state=np.random.Ra
 
             S_train.loc[Ind[::-1]] = 1
             S_test.loc[Ind[::-1]] = 0
-
 
         M_train = M*S_train
         M_test = M*S_test
@@ -178,6 +192,9 @@ def sample_mask(M,frac,use_upper=False,use_index=False,random_state=np.random.Ra
         #Initialize indicators
         S_train = pd.DataFrame(0, index=M.index, columns=M.columns)
         S_test = pd.DataFrame(1, index=M.index, columns=M.columns)
+
+        if avoid_diag:
+            np.fill_diagonal(S_test.values, 0)
 
         for Ind in multInd:
             S_train.loc[Ind] = 1
