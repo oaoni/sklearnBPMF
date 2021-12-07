@@ -23,7 +23,7 @@ class Wrapper(BaseEstimator):
         self.save_freq = save_freq
         self.save_name = save_name + '.hdf5'
         self.num_threads = num_threads
-        self.report_freq = report_freq
+        self.report_freq = report_freq if report_freq else num_samples
         self.metric_mode = metric_mode
 
         self.train_rmse = None

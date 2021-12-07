@@ -69,3 +69,12 @@ def leverage_update(m, k, n=1, kernel=None, **kwargs):
         return np.random.choice(flat_ind,n,replace=False, p=p)[0]
     else:
         return np.random.choice(flat_ind,n,replace=False, p=p)
+
+def compute_leverage(M):
+
+    target = M.copy()
+    # lev_sampling is matrix of leverage scores for each entry
+    # below uses a (poorly founded) heuristic for choosing rank to truncate svd to
+    lev_scores, lev_sampling = sampling_distribution(target, int(effective_rank(target)/2))
+
+    return lev_sampling
