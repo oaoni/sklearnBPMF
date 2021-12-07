@@ -1,3 +1,3 @@
-from .models import Macau
-from .models import BPMF
-from .data.utils import loadTrainTestH5, smurffNormalizeData
+from sklearnBPMF.models import Macau
+from sklearnBPMF.models import BPMF
+from sklearnBPMF.data.utils import loadTrainTestH5, smurffNormalizeData
