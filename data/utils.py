@@ -213,13 +213,15 @@ def sample_mask(M,frac,use_upper=False,use_index=False,
 
     return M_train, M_test, S_train, S_test
 
-def gi_side_process(side,form,near_n=15,min_d=0.1,plot=True):
+def side_process(side, form, near_n=15,min_d=0.1,plot=True):
     """ Various forms of processing side information for gi side information
     """
 
-    if form == 'corr_only':
-        W_vec = scipy.linalg.sqrtm(side.T.corr())
-        W_val = None
+    if form == None:
+        final_side = side
+
+    elif form == 'corr_only':
+        final_side = scipy.linalg.sqrtm(side.T.corr())
 
     else:
         if form == 'corr':
@@ -236,9 +238,9 @@ def gi_side_process(side,form,near_n=15,min_d=0.1,plot=True):
             processed_side = umap_graph(side,near_n,min_d,plot=plot)
 
         laplacian = graph_laplacian(processed_side)
-        W_val,W_vec = eigen(laplacian)
+        final_side = eigen(laplacian)
 
-    return W_val,W_vec
+    return final_side
 
 def umap_graph(data,near_n,min_d,plot=True):
     rand_s = np.random.RandomState(30)
