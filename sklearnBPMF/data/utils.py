@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import umap
-from umap import UMAP
 from sklearn.cluster import KMeans
 import networkx as nx
 from numpy import linalg as npla
