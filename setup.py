@@ -16,6 +16,6 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/oaoni/sklearnBPMF/issues"
     },
     license='MIT',
-    packages=['sklearnBPMF','core','data','models'],
+    packages=['sklearnBPMF','sklearnBPMF.*'],
     install_requires=['smurff','umap','scipy','networkx','sklearn','pandas','numpy'],
 )
