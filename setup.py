@@ -1,4 +1,4 @@
-import setuptools
+from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -16,6 +16,6 @@ setuptools.setup(
         "Bug Tracker": "https://github.com/oaoni/sklearnBPMF/issues"
     },
     license='MIT',
-    packages=['sklearnBPMF','sklearnBPMF.*'],
+    packages=find_packages(include=['sklearnBPMF','sklearnBPMF.*']),
     install_requires=['smurff','umap','scipy','networkx','sklearn','pandas','numpy'],
 )
