@@ -3,8 +3,11 @@ import numpy as np
 import smurff
 import os
 from sklearn.base import BaseEstimator
+from scipy.cluster.hierarchy import linkage, dendrogram
+from scipy.sparse import coo_matrix
 
 from sklearnBPMF.core import corr_metric
+from sklearnBPMF.data.utils import to_sparse
 
 
 class Wrapper(BaseEstimator):
@@ -143,44 +146,72 @@ class Wrapper(BaseEstimator):
 
     def _makePlots(self, predAvg, predStd, X_test, testCorr, saveplot=True):
 
-        fig, ax = plt.subplots(3, 2, figsize=(15, 20))
-        ax[0, 0].scatter(X_test.data, predAvg, edgecolors=(0, 0, 0))
-        ax[0, 0].plot([X_test.data.min(), X_test.data.max()], [predAvg.min(), predAvg.max()], 'k--',
-                      lw=4)
-        ax[0, 0].set_xlabel('Measured')
-        ax[0, 0].set_ylabel('Predicted')
-        ax[0, 0].set_title('Measured vs Avg. Prediction')
+        M = self.X_train + self.X_test
 
-        ax[0, 1].scatter(predStd, predAvg, edgecolors=(0, 0, 0))
-        ax[0, 1].set_xlabel('Standard Deviation')
-        ax[0, 1].set_ylabel('Predicted')
-        ax[0, 1].set_title('Stdev. vs Prediction')
+        linkage_ = linkage(M, method='ward')
+        dendrogram_ = dendrogram(linkage_, no_plot=True)
+        clust_index = dendrogram_['leaves']
+        M_clust = M.iloc[clust_index,clust_index]
+
+        test_sparse = to_sparse(self.train_dict['pred_avg'],self.train_dict['pred_coord'])
+        test_std_sparse = to_sparse(self.train_dict['pred_std'],self.train_dict['pred_coord'])
+        train_sparse = to_sparse(self.train_dict['train_avg'],self.train_dict['train_coord'])
+        train_std_sparse = to_sparse(self.train_dict['train_std'],self.train_dict['train_coord'])
+
+        pred_clust = (test_sparse + train_sparse)[:,clust_index][clust_index,:].toarray()
+        std_clust = (test_std_sparse + train_std_sparse)[:,clust_index][clust_index,:].toarray()
+
+        fig, ax = plt.subplots(3, 3, figsize=(20, 20))
+
+        sns.heatmap(M_clust,robust=True,ax=ax[0,0], square=True,
+                    yticklabels=False, xticklabels=False)
+        ax[0, 0].set_title('True Matrix')
+
+        sns.heatmap(pred_clust,robust=True,ax=ax[0,1], cbar=False,
+                    yticklabels=False, xticklabels=False, square=True)
+        ax[0, 1].set_title('Predicted Matrix')
+
+        sns.heatmap(std_clust,robust=True,ax=ax[0,2], cmap='viridis',
+                    yticklabels=False, xticklabels=False, square=True)
+        ax[0, 2].set_title('Uncertainty (Stdev.)')
+
+        ax[1, 0].scatter(X_test.data, predAvg, edgecolors=(0, 0, 0))
+        ax[1, 0].plot([X_test.data.min(), X_test.data.max()], [predAvg.min(), predAvg.max()], 'k--',
+                      lw=4)
+        ax[1, 0].set_xlabel('Measured')
+        ax[1, 0].set_ylabel('Predicted')
+        ax[1, 0].set_title('Measured vs Avg. Prediction')
+
+        ax[1, 1].scatter(predStd, predAvg, edgecolors=(0, 0, 0))
+        ax[1, 1].set_xlabel('Standard Deviation')
+        ax[1, 1].set_ylabel('Predicted')
+        ax[1, 1].set_title('Stdev. vs Prediction')
 
         x_ax = np.arange(len(X_test.data))
         sort_vals = np.argsort(X_test.data)
-        ax[1, 0].plot(x_ax, X_test.data[sort_vals], linewidth=4, label="measured")
-        ax[1, 0].plot(x_ax, predAvg[sort_vals], 'rx', alpha=0.5, label='predicted')
-        ax[1, 0].set_title('Sorted and overlayed measured and predicted values')
-        ax[1, 0].legend()
+        ax[1, 2].plot(x_ax, X_test.data[sort_vals], linewidth=4, label="measured")
+        ax[1, 2].plot(x_ax, predAvg[sort_vals], 'rx', alpha=0.5, label='predicted')
+        ax[1, 2].set_title('Sorted and overlayed measured and predicted values')
+        ax[1, 2].legend()
 
-        ax[1, 1].plot(x_ax, X_test.data[sort_vals], linewidth=4, label="measured")
-        ax[1, 1].plot(x_ax, predStd[sort_vals], 'r', label='stdev.')
-        ax[1, 1].set_title('Sorted and overlayed measured stdev values')
-        ax[1, 1].legend()
-
-        ax[2, 0].plot(x_ax, X_test.data[sort_vals], label="actual")
-        ax[2, 0].fill_between(x_ax, predAvg[sort_vals] - predStd[sort_vals],
-                              predAvg[sort_vals] + predStd[sort_vals],
-                              alpha=0.5, label="std")
-        ax[2, 0].set_title('predicted stdev. relative to predicted value')
+        ax[2, 0].plot(x_ax, X_test.data[sort_vals], linewidth=4, label="measured")
+        ax[2, 0].plot(x_ax, predStd[sort_vals], 'r', label='stdev.')
+        ax[2, 0].set_title('Sorted and overlayed measured stdev values')
         ax[2, 0].legend()
 
         ax[2, 1].plot(x_ax, X_test.data[sort_vals], label="actual")
-        ax[2, 1].fill_between(x_ax, X_test.data[sort_vals] - predStd[sort_vals],
+        ax[2, 1].fill_between(x_ax, predAvg[sort_vals] - predStd[sort_vals],
+                              predAvg[sort_vals] + predStd[sort_vals],
+                              alpha=0.5, label="std")
+        ax[2, 1].set_title('predicted stdev. relative to predicted value')
+        ax[2, 1].legend()
+
+        ax[2, 2].plot(x_ax, X_test.data[sort_vals], label="actual")
+        ax[2, 2].fill_between(x_ax, X_test.data[sort_vals] - predStd[sort_vals],
                               X_test.data[sort_vals] + predStd[sort_vals],
                               alpha=0.5, label='std')
-        ax[2, 1].set_title('predicted stdev. relative to measured value')
-        ax[2, 1].legend()
+        ax[2, 2].set_title('predicted stdev. relative to measured value')
+        ax[2, 2].legend()
 
         fig.tight_layout()
         fig.suptitle('{} - NSAMPLES: {} NUM_LATENT: {} SIDE_NOISE: {}\n Metrics - Corr: {:.5f}'. \
