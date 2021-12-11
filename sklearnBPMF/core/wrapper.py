@@ -175,7 +175,7 @@ class Wrapper(BaseEstimator):
                     yticklabels=False, xticklabels=False, square=True)
         ax[0, 2].set_title('Uncertainty (Stdev.)')
 
-        ax[1, 0].scatter(X_test.data, predAvg, edgecolors=(0x   , 0, 0))
+        ax[1, 0].scatter(X_test.data, predAvg, edgecolors=(0, 0, 0))
         ax[1, 0].plot([X_test.data.min(), X_test.data.max()], [predAvg.min(), predAvg.max()], 'k--',
                       lw=4)
         ax[1, 0].set_xlabel('Measured')
