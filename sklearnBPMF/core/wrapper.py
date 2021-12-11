@@ -42,18 +42,18 @@ class Wrapper(BaseEstimator):
         while self.train_step():
             pass
 
-        if (verbose) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
-            print('Final test correlation is: {}'.format(self.train_dict['test_corr']))
-
-        if (make_plot) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
-            self._makePlots(self.train_dict['pred_avg'], self.train_dict['pred_std'], X_test, self.train_dict['test_corr'])
-
         if self.metric_mode > 0:
             #Store training set predictions
             trainAvg, trainStd, trainCoord = self.predictTrain(return_std=True)
             self.train_dict['train_avg'] = trainAvg
             self.train_dict['train_std'] = trainStd
             self.train_dict['train_coord'] = trainCoord
+
+        if (verbose) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
+            print('Final test correlation is: {}'.format(self.train_dict['test_corr']))
+
+        if (make_plot) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
+            self._makePlots(self.train_dict['pred_avg'], self.train_dict['pred_std'], X_test, self.train_dict['test_corr'])
 
         return self
 
