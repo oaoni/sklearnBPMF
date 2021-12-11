@@ -146,7 +146,7 @@ class Wrapper(BaseEstimator):
 
     def _makePlots(self, predAvg, predStd, X_test, testCorr, saveplot=True):
 
-        M = self.X_train + self.X_test
+        M = (self.X_train + self.X_test).toarray()
 
         linkage_ = linkage(M, method='ward')
         dendrogram_ = dendrogram(linkage_, no_plot=True)
