@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import smurff
 import os
+import seaborn as sns
 from sklearn.base import BaseEstimator
 from scipy.cluster.hierarchy import linkage, dendrogram
 from scipy.sparse import coo_matrix
