@@ -146,12 +146,12 @@ class Wrapper(BaseEstimator):
 
     def _makePlots(self, predAvg, predStd, X_test, testCorr, saveplot=True):
 
-        M = (self.X_train + self.X_test).toarray()
+        M = (self.X_train + self.X_test)
 
-        linkage_ = linkage(M, method='ward')
+        linkage_ = linkage(M.toarray(), method='ward')
         dendrogram_ = dendrogram(linkage_, no_plot=True)
         clust_index = dendrogram_['leaves']
-        M_clust = M.iloc[clust_index,clust_index]
+        M_clust = M[:,clust_index][clust_index,:].toarray()
 
         test_sparse = to_sparse(self.train_dict['pred_avg'],self.train_dict['pred_coord'])
         test_std_sparse = to_sparse(self.train_dict['pred_std'],self.train_dict['pred_coord'])
