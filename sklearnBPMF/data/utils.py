@@ -219,8 +219,11 @@ def side_process(side, form, near_n=15,min_d=0.1,plot=True):
     if form == None:
         final_side = side
 
-    elif form == 'corr_only':
+    elif form == 'sqrt_corr':
         final_side = scipy.linalg.sqrtm(side.T.corr())
+
+    elif form == 'sqrt_only':
+        final_side = scipy.linalg.sqrtm(side)
 
     else:
         if form == 'corr':
