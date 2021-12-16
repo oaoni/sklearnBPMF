@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import umap
+import umap.umap_ as umap
 from sklearn.cluster import KMeans
 import networkx as nx
 from numpy import linalg as npla
@@ -247,12 +247,12 @@ def side_process(side, form, near_n=15,min_d=0.1,plot=True):
 def umap_graph(data,near_n,min_d,plot=True):
     rand_s = np.random.RandomState(30)
 
-    sim_set = umap.umap_.fuzzy_simplicial_set(data,near_n,random_state=rand_s,\
+    sim_set = umap.fuzzy_simplicial_set(data,near_n,random_state=rand_s,\
                                               metric="euclidean")
     sim_set = sim_set[0].toarray()
     if plot:
 
-        transformer = UMAP(n_neighbors=near_n,random_state=rand_s,min_dist=min_d).fit(data)
+        transformer = umap.UMAP(n_neighbors=near_n,random_state=rand_s,min_dist=min_d).fit(data)
         raw_emb = transformer.transform(data);
         kmeans = KMeans(n_clusters=4, init='k-means++', max_iter=300, n_init=10, random_state=rand_s)
         labels = kmeans.fit(raw_emb)
