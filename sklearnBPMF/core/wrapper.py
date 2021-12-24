@@ -35,7 +35,7 @@ class Wrapper(BaseEstimator):
         self.sample_iter = None
         self.train_dict = None
 
-    def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True):
+    def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True, complete_matrix=None):
         # Initialize the training session method
         self.addData(X_train, X_test, X_side)
 
@@ -54,7 +54,7 @@ class Wrapper(BaseEstimator):
             print('Final test correlation is: {}'.format(self.train_dict['test_corr']))
 
         if (make_plot) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
-            self._makePlots(self.train_dict['pred_avg'], self.train_dict['pred_std'], X_test, self.train_dict['test_corr'])
+            self._makePlots(self.train_dict['pred_avg'], self.train_dict['pred_std'], X_test, self.train_dict['test_corr'], complete_matrix=complete_matrix)
 
         return self
 
@@ -145,9 +145,12 @@ class Wrapper(BaseEstimator):
         else:
             return predAvg, predCoord
 
-    def _makePlots(self, predAvg, predStd, X_test, testCorr, saveplot=True):
+    def _makePlots(self, predAvg, predStd, X_test, testCorr, saveplot=True, complete_matrix=None):
 
-        M = (self.X_train + self.X_test)
+        if complete_matrix:
+            M = complete_matrix
+        else:
+            M = (self.X_train + self.X_test)
 
         linkage_ = linkage(M.toarray(), method='ward')
         dendrogram_ = dendrogram(linkage_, no_plot=True)

@@ -331,14 +331,15 @@ def load_pkis2():
 
     return pkis
 
-def smurffNormalizeData(M_train, M_test):
+def smurffNormalizeData(M, M_train, M_test):
 
     train_centered, global_mean, _ = smurff.center_and_scale(coo_matrix(M_train),
                                           "global", with_mean = True, with_std = False)
 
     test_centered = coo_matrix(M_test)
     test_centered.data -= global_mean # only touch non-zeros
-    all_centered = train_centered + test_centered
+    all_centered = coo_matrix(M)
+    all_centered.data -= global_mean # only touch non-zeros
 
     return train_centered, test_centered, all_centered
 
