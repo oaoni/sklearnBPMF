@@ -147,7 +147,7 @@ class Wrapper(BaseEstimator):
 
     def _makePlots(self, predAvg, predStd, X_test, testCorr, saveplot=True, complete_matrix=None):
 
-        if complete_matrix:
+        if complete_matrix != None:
             M = complete_matrix
         else:
             M = (self.X_train + self.X_test)
