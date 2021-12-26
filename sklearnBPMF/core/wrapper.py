@@ -188,14 +188,14 @@ class Wrapper(BaseEstimator):
                     yticklabels=False, xticklabels=False, square=True)
         ax[0, 2].set_title('Uncertainty (Stdev.)')
 
-        ax[1, 0].scatter(X_test.data, predAvg, edgecolors=(0, 0, 0))
-        ax[1, 0].plot([X_test.data.min(), X_test.data.max()], [predAvg.min(), predAvg.max()], 'k--',
+        ax[1, 0].scatter(X_test.data, pred_avg, edgecolors=(0, 0, 0))
+        ax[1, 0].plot([X_test.data.min(), X_test.data.max()], [pred_avg.min(), pred_avg.max()], 'k--',
                       lw=4)
         ax[1, 0].set_xlabel('Measured')
         ax[1, 0].set_ylabel('Predicted')
         ax[1, 0].set_title('Measured vs Avg. Prediction')
 
-        ax[1, 1].scatter(predStd, predAvg, edgecolors=(0, 0, 0))
+        ax[1, 1].scatter(pred_std, pred_avg, edgecolors=(0, 0, 0))
         ax[1, 1].set_xlabel('Standard Deviation')
         ax[1, 1].set_ylabel('Predicted')
         ax[1, 1].set_title('Stdev. vs Prediction')
@@ -203,25 +203,25 @@ class Wrapper(BaseEstimator):
         x_ax = np.arange(len(X_test.data))
         sort_vals = np.argsort(X_test.data)
         ax[1, 2].plot(x_ax, X_test.data[sort_vals], linewidth=4, label="measured")
-        ax[1, 2].plot(x_ax, predAvg[sort_vals], 'rx', alpha=0.5, label='predicted')
+        ax[1, 2].plot(x_ax, pred_avg[sort_vals], 'rx', alpha=0.5, label='predicted')
         ax[1, 2].set_title('Sorted and overlayed measured and predicted values')
         ax[1, 2].legend()
 
         ax[2, 0].plot(x_ax, X_test.data[sort_vals], linewidth=4, label="measured")
-        ax[2, 0].plot(x_ax, predStd[sort_vals], 'r', label='stdev.')
+        ax[2, 0].plot(x_ax, pred_std[sort_vals], 'r', label='stdev.')
         ax[2, 0].set_title('Sorted and overlayed measured stdev values')
         ax[2, 0].legend()
 
         ax[2, 1].plot(x_ax, X_test.data[sort_vals], label="actual")
-        ax[2, 1].fill_between(x_ax, predAvg[sort_vals] - predStd[sort_vals],
-                              predAvg[sort_vals] + predStd[sort_vals],
+        ax[2, 1].fill_between(x_ax, pred_avg[sort_vals] - pred_std[sort_vals],
+                              pred_avg[sort_vals] + pred_std[sort_vals],
                               alpha=0.5, label="std")
         ax[2, 1].set_title('predicted stdev. relative to predicted value')
         ax[2, 1].legend()
 
         ax[2, 2].plot(x_ax, X_test.data[sort_vals], label="actual")
-        ax[2, 2].fill_between(x_ax, X_test.data[sort_vals] - predStd[sort_vals],
-                              X_test.data[sort_vals] + predStd[sort_vals],
+        ax[2, 2].fill_between(x_ax, X_test.data[sort_vals] - pred_std[sort_vals],
+                              X_test.data[sort_vals] + pred_std[sort_vals],
                               alpha=0.5, label='std')
         ax[2, 2].set_title('predicted stdev. relative to measured value')
         ax[2, 2].legend()
