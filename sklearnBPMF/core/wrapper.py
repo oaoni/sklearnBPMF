@@ -54,7 +54,9 @@ class Wrapper(BaseEstimator):
             print('Final test correlation is: {}'.format(self.train_dict['test_corr']))
 
         if (make_plot) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
-            self._makePlots(self.train_dict['pred_avg'], self.train_dict['pred_std'], X_test, self.train_dict['test_corr'], complete_matrix=complete_matrix)
+            # self._makePlots(self.train_dict['pred_avg'], self.train_dict['pred_std'],
+            #                 X_test, self.train_dict['test_corr'], complete_matrix=complete_matrix)
+            self._makePlots(self.train_dict, X_test, complete_matrix=complete_matrix)
 
         return self
 
@@ -145,7 +147,12 @@ class Wrapper(BaseEstimator):
         else:
             return predAvg, predCoord
 
-    def _makePlots(self, predAvg, predStd, X_test, testCorr, saveplot=True, complete_matrix=None):
+    def _makePlots(self, train_dict, X_test, saveplot=True, complete_matrix=None):
+
+        pred_avg = train_dict['pred_avg']
+        pred_std = train_dict['pred_std']
+        test_corr = train_dict['test_corr']
+        rmse_avg = train_dict['rmse_avg']
 
         if complete_matrix != None:
             M = complete_matrix.tocsc()
@@ -157,10 +164,10 @@ class Wrapper(BaseEstimator):
         clust_index = dendrogram_['leaves']
         M_clust = M[:,clust_index][clust_index,:].toarray()
 
-        test_sparse = to_sparse(self.train_dict['pred_avg'],self.train_dict['pred_coord'])
-        test_std_sparse = to_sparse(self.train_dict['pred_std'],self.train_dict['pred_coord'])
-        train_sparse = to_sparse(self.train_dict['train_avg'],self.train_dict['train_coord'])
-        train_std_sparse = to_sparse(self.train_dict['train_std'],self.train_dict['train_coord'])
+        test_sparse = to_sparse(pred_avg, pred_coord)
+        test_std_sparse = to_sparse(pred_std, pred_coord)
+        train_sparse = to_sparse(train_avg, train_coord)
+        train_std_sparse = to_sparse(train_std, train_coord)
 
         pred_clust = (test_sparse + train_sparse)[:,clust_index][clust_index,:].toarray()
         std_clust = (test_std_sparse + train_std_sparse)[:,clust_index][clust_index,:].toarray()
@@ -171,8 +178,8 @@ class Wrapper(BaseEstimator):
                     yticklabels=False, xticklabels=False)
         ax[0, 0].set_title('True Matrix')
 
-        sns.heatmap(pred_clust,robust=True,ax=ax[0,1], cbar=False,
-                    yticklabels=False, xticklabels=False, square=True)
+        sns.heatmap(pred_clust,robust=True,ax=ax[0,1], square=True,
+                    yticklabels=False, xticklabels=False)
         ax[0, 1].set_title('Predicted Matrix')
 
         sns.heatmap(std_clust,robust=True,ax=ax[0,2], cmap='viridis',
@@ -218,9 +225,9 @@ class Wrapper(BaseEstimator):
         ax[2, 2].legend()
 
         fig.tight_layout()
-        fig.suptitle('{} - NSAMPLES: {} NUM_LATENT: {} SIDE_NOISE: {}\n Metrics - Corr: {:.5f}'. \
+        fig.suptitle('{} - NSAMPLES: {} NUM_LATENT: {} SIDE_NOISE: {}\n Metrics - Corr: {:.5f} - Test RMSE: {:.5f}'. \
                      format(self.trainSession.getSaveName().split('.')[0],
-                            self.num_samples, self.num_latent, self.side_noise, testCorr))
+                            self.num_samples, self.num_latent, self.side_noise, test_corr, rmse_avg))
 
         fig.subplots_adjust(top=0.90)
         if saveplot:
