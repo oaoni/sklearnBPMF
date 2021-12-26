@@ -154,6 +154,7 @@ class Wrapper(BaseEstimator):
         pred_coord = train_dict['pred_coord']
         train_avg = train_dict['train_avg']
         train_std = train_dict['train_std']
+        train_coord = train_dict['train_coord']
 
         if complete_matrix != None:
             M = complete_matrix.tocsc()
