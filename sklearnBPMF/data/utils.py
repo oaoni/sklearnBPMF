@@ -349,3 +349,16 @@ def to_sparse(data, inds):
     data_sparse = coo_matrix((data, (row, col)))
 
     return data_sparse
+
+def quantile_mask(M, q, weights=None):
+
+    if isinstance(weights, type(None)):
+        Mat = pd.DataFrame(M.values)
+    else:
+        Mat = pd.DataFrame(weights.values)
+
+    M_quant = np.abs(Mat.replace(0,np.nan))
+    quant = np.nanquantile(M_quant, q=q)
+    qMasked = M[M_quant >= quant].replace(np.nan, 0)
+
+    return qMasked
