@@ -343,10 +343,10 @@ def smurffNormalizeData(M, M_train, M_test):
 
     return train_centered, test_centered, all_centered
 
-def to_sparse(data, inds):
+def to_sparse(data, inds, shape):
 
     row, col = list(zip(*inds))
-    data_sparse = coo_matrix((data, (row, col)))
+    data_sparse = coo_matrix((data, (row, col)), shape=shape)
 
     return data_sparse
 

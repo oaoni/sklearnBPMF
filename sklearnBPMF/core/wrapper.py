@@ -155,6 +155,7 @@ class Wrapper(BaseEstimator):
         train_avg = train_dict['train_avg']
         train_std = train_dict['train_std']
         train_coord = train_dict['train_coord']
+        shape = X_test.shape
 
         if complete_matrix != None:
             M = complete_matrix.tocsc()
@@ -166,10 +167,10 @@ class Wrapper(BaseEstimator):
         clust_index = dendrogram_['leaves']
         M_clust = M[:,clust_index][clust_index,:].toarray()
 
-        test_sparse = to_sparse(pred_avg, pred_coord)
-        test_std_sparse = to_sparse(pred_std, pred_coord)
-        train_sparse = to_sparse(train_avg, train_coord)
-        train_std_sparse = to_sparse(train_std, train_coord)
+        test_sparse = to_sparse(pred_avg, pred_coord, shape)
+        test_std_sparse = to_sparse(pred_std, pred_coord, shape)
+        train_sparse = to_sparse(train_avg, train_coord, shape)
+        train_std_sparse = to_sparse(train_std, train_coord, shape)
 
         pred_clust = (test_sparse + train_sparse)[:,clust_index][clust_index,:].toarray()
         std_clust = (test_std_sparse + train_std_sparse)[:,clust_index][clust_index,:].toarray()
