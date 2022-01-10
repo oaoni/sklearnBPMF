@@ -209,6 +209,9 @@ def sample_mask(M,frac,use_upper=False,use_index=False,
             S_train.loc[Ind] = 1
             S_test.loc[Ind] = 0
 
+            S_train.loc[Ind[::-1]] = 1
+            S_test.loc[Ind[::-1]] = 0
+
         M_train = M*S_train
         M_test = M*S_test
     else:
