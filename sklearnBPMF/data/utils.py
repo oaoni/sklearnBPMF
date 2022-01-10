@@ -154,7 +154,8 @@ def sample_mask(M,frac,use_upper=False,use_index=False,
     """
 
     if use_upper:
-        k = 1 if avoid_diag else 0
+        # k = 1 if avoid_diag else 0
+        k = 0
         weights = weights.stack(dropna=False) if isinstance(weights,pd.DataFrame) else None
 
         #Samples from upper triangular. For symmetrical relational matrices.
@@ -185,8 +186,12 @@ def sample_mask(M,frac,use_upper=False,use_index=False,
     elif use_index:
         #Samples from entire matrix
         #Produce multiindex of sampled elements (might want to return)
-        multInd = M.stack(dropna=False).sample(frac=frac, replace=False,
-                                              random_state=random_state).index
+
+        n_frac = int(((M.shape[0]**2)/2)*frac)
+        ind = weights.sample(n=n_frac*2,replace=True,weights=weights,
+                          random_state=random_state).index
+
+        multInd = pd.MultiIndex.from_arrays([ind[::2], ind[1::2]])
 
         #Initialize indicators
         S_train = pd.DataFrame(0, index=M.index, columns=M.columns)
@@ -194,6 +199,9 @@ def sample_mask(M,frac,use_upper=False,use_index=False,
 
         if avoid_diag:
             np.fill_diagonal(S_test.values, 0)
+
+        if diag_for_trainset:
+            np.fill_diagonal(S_train.values, 1)
 
         for Ind in multInd:
             S_train.loc[Ind] = 1
