@@ -187,8 +187,10 @@ def sample_mask(M,frac,use_upper=False,use_index=False,
         #Samples from entire matrix
         #Produce multiindex of sampled elements (might want to return)
 
+        index = weights if isinstance(weights,pd.Series) else None
+
         n_frac = int(((M.shape[0]**2)/2)*frac)
-        ind = weights.sample(n=n_frac*2,replace=True,weights=weights,
+        ind = index.sample(n=n_frac*2,replace=True,weights=weights,
                           random_state=random_state).index
 
         multInd = pd.MultiIndex.from_arrays([ind[::2], ind[1::2]])
