@@ -77,4 +77,4 @@ def compute_leverage(M):
     # below uses a (poorly founded) heuristic for choosing rank to truncate svd to
     lev_scores, lev_sampling = sampling_distribution(target, int(effective_rank(target)/2))
 
-    return lev_sampling
+    return lev_scores, lev_sampling
