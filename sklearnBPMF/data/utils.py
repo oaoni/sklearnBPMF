@@ -194,7 +194,7 @@ def sample_mask(M,frac,n_frac,use_upper=False,use_index=False,
 
         index = weights if isinstance(weights,pd.Series) else None
 
-        n_frac = int(((M.shape[0]**2)/2)*frac)
+        # n_frac = int(((M.shape[0]**2)/2)*frac)
         ind = index.sample(**sample_kwargs,replace=True,weights=weights,
                           random_state=random_state).index
 
