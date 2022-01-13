@@ -153,12 +153,12 @@ def sample_mask(M,frac,n_frac,use_upper=False,use_index=False,
     returns: train/test matrix (M), and Mask (S)
     """
 
-    if isinstance(n_frac,int):
-        sample_kwargs = {'n':n_frac}
-    elif isinstance(frac,float):
-        sample_kwargs = {'frac':frac}
-
     if use_upper:
+
+        if isinstance(n_frac,int):
+            sample_kwargs = {'n':n_frac}
+        elif isinstance(frac,float):
+            sample_kwargs = {'frac':frac}
         # k = 1 if avoid_diag else 0
         k = 0
         weights = weights.stack(dropna=False) if isinstance(weights,pd.DataFrame) else None
@@ -191,6 +191,11 @@ def sample_mask(M,frac,n_frac,use_upper=False,use_index=False,
     elif use_index:
         #Samples from entire matrix
         #Produce multiindex of sampled elements (might want to return)
+
+        if isinstance(n_frac,int):
+            sample_kwargs = {'n':n_frac*2}
+        elif isinstance(frac,float):
+            sample_kwargs = {'frac':frac*2}
 
         index = weights if isinstance(weights,pd.Series) else None
 
