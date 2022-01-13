@@ -60,13 +60,13 @@ def load_gi_example(frac, data_path, side_path, cluster=None):
 
     return [M,S_train,S_test,M_train,M_test],side
 
-def makeTrainTest(M,frac,use_upper=True,use_index=False,avoid_diag=False,weights=None,diag_for_trainset=False):
+def makeTrainTest(M,frac=None,n_frac=None,use_upper=True,use_index=False,avoid_diag=False,weights=None,diag_for_trainset=False):
 
     #Two functions for sampling from the phenotype matrix
     random.seed(30)
 
     #Sample a percentage of the genes
-    M_train, M_test, S_train, S_test = sample_mask(M,frac,use_upper=use_upper,use_index=use_index,
+    M_train, M_test, S_train, S_test = sample_mask(M,frac,n_frac,use_upper=use_upper,use_index=use_index,
                                                     avoid_diag=avoid_diag,weights=weights,
                                                     diag_for_trainset=diag_for_trainset)
     M_train = M_train.values
@@ -145,7 +145,7 @@ def upper_triangle(M, k=1):
     # will not behave as expected!!
     return M.stack(dropna=False).loc[keep]
 
-def sample_mask(M,frac,use_upper=False,use_index=False,
+def sample_mask(M,frac,n_frac,use_upper=False,use_index=False,
                 random_state=np.random.RandomState(30),
                 avoid_diag=False,weights=None,
                 diag_for_trainset=False):
@@ -153,13 +153,18 @@ def sample_mask(M,frac,use_upper=False,use_index=False,
     returns: train/test matrix (M), and Mask (S)
     """
 
+    if isinstance(n_frac,int):
+        sample_kwargs = {'n':n_frac}
+    elif isinstance(frac,float):
+        sample_kwargs = {'frac':frac}
+
     if use_upper:
         # k = 1 if avoid_diag else 0
         k = 0
         weights = weights.stack(dropna=False) if isinstance(weights,pd.DataFrame) else None
 
         #Samples from upper triangular. For symmetrical relational matrices.
-        multInd = upper_triangle(M, k=k).sample(frac=frac, replace=False,
+        multInd = upper_triangle(M, k=k).sample(**sample_kwargs, replace=False,
                                                 random_state=random_state,
                                                 weights=weights).index
 
@@ -190,7 +195,7 @@ def sample_mask(M,frac,use_upper=False,use_index=False,
         index = weights if isinstance(weights,pd.Series) else None
 
         n_frac = int(((M.shape[0]**2)/2)*frac)
-        ind = index.sample(n=n_frac*2,replace=True,weights=weights,
+        ind = index.sample(**sample_kwargs,replace=True,weights=weights,
                           random_state=random_state).index
 
         multInd = pd.MultiIndex.from_arrays([ind[::2], ind[1::2]])
