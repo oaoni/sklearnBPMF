@@ -156,9 +156,9 @@ def sample_mask(M,frac,n_frac,use_upper=False,use_index=False,
     if use_upper:
 
         if isinstance(n_frac,int):
-            sample_kwargs = {'n':n_frac}
+            sample_kwargs = {'n':n_frac*2}
         elif isinstance(frac,float):
-            sample_kwargs = {'frac':frac}
+            sample_kwargs = {'frac':frac*2}
         # k = 1 if avoid_diag else 0
         k = 0
         weights = weights.stack(dropna=False) if isinstance(weights,pd.DataFrame) else None
@@ -167,6 +167,9 @@ def sample_mask(M,frac,n_frac,use_upper=False,use_index=False,
         multInd = upper_triangle(M, k=k).sample(**sample_kwargs, replace=False,
                                                 random_state=random_state,
                                                 weights=weights).index
+
+        nfrac = len(multInd)//2
+        multInd = [x for x in multInd if x[0] != x[1]][:nfrac]
 
         #Initialize indicators
         S_train = pd.DataFrame(0, index=M.index, columns=M.columns)
@@ -193,9 +196,9 @@ def sample_mask(M,frac,n_frac,use_upper=False,use_index=False,
         #Produce multiindex of sampled elements (might want to return)
 
         if isinstance(n_frac,int):
-            sample_kwargs = {'n':n_frac*2}
+            sample_kwargs = {'n':n_frac*4}
         elif isinstance(frac,float):
-            sample_kwargs = {'frac':frac*2}
+            sample_kwargs = {'frac':frac*4}
 
         index = weights if isinstance(weights,pd.Series) else None
 
@@ -204,6 +207,8 @@ def sample_mask(M,frac,n_frac,use_upper=False,use_index=False,
                           random_state=random_state).index
 
         multInd = pd.MultiIndex.from_arrays([ind[::2], ind[1::2]])
+        nfrac = len(multInd)//2
+        multInd = [x for x in multInd if x[0] != x[1]][:nfrac]
 
         #Initialize indicators
         S_train = pd.DataFrame(0, index=M.index, columns=M.columns)
