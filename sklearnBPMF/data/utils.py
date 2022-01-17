@@ -208,7 +208,8 @@ def sample_mask(M,frac,n_frac,use_upper=False,use_index=False,
 
         multInd = pd.MultiIndex.from_arrays([ind[::2], ind[1::2]])
         nfrac = len(multInd)//2
-        multInd = [x for x in multInd if x[0] != x[1]][:nfrac]
+        multInd = [x for x in multInd if x[0] != x[1]]
+        multInd = [tuple(x) for x in set(frozenset(c) for c in multInd)][:nfrac]
 
         #Initialize indicators
         S_train = pd.DataFrame(0, index=M.index, columns=M.columns)
