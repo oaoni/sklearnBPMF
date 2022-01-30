@@ -157,7 +157,7 @@ class Wrapper(BaseEstimator):
         train_coord = train_dict['train_coord']
         shape = X_test.shape
         n_train_examples = len(X_train.data)//2
-        test_ratio = len(X_test.data)/(shape[0])
+        test_ratio = len(X_test.data)/(shape[0]**2)
 
         if complete_matrix != None:
             M = complete_matrix.tocsc()
@@ -230,7 +230,7 @@ class Wrapper(BaseEstimator):
         ax[2, 2].legend()
 
         fig.tight_layout()
-        fig.suptitle('{} - NSAMPLES: {} NUM_LATENT: {} SIDE_NOISE: {} NUM_TRAIN {} BURNIN: {} TEST_RATIO {}\n Metrics - Corr: {:.5f} - Test RMSE: {:.5f}'. \
+        fig.suptitle('{} - NSAMPLES: {} NUM_LATENT: {} SIDE_NOISE: {} NUM_TRAIN {} BURNIN: {} TEST_RATIO {:.5f}\n Metrics - Corr: {:.5f} - Test RMSE: {:.5f}'. \
                      format(self.trainSession.getSaveName().split('.')[0],
                             self.num_samples, self.num_latent, self.side_noise,
                             n_train_examples, self.burnin, test_ratio,
