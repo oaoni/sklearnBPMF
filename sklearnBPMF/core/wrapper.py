@@ -156,7 +156,7 @@ class Wrapper(BaseEstimator):
         train_std = train_dict['train_std']
         train_coord = train_dict['train_coord']
         shape = X_test.shape
-        n_train_examples = len(X_data.data)//2
+        n_train_examples = len(X_train.data)//2
         test_ratio = len(X_test.data)/(shape[0])
 
         if complete_matrix != None:
