@@ -257,22 +257,17 @@ def side_process(side, form, near_n=15,min_d=0.1,plot=True):
     elif form == 'sqrt_only':
         final_side = scipy.linalg.sqrtm(side)
 
-    else:
-        if form == 'corr':
-            processed_side = scipy.linalg.sqrtm(side.T.corr())
+    elif form == 'raw_sim_set':
+        side = side.values
+        final_side = umap_graph(side,near_n,min_d,plot=plot)
 
-        elif form == 'raw_sim_set':
-            side = side.values
-            processed_side = umap_graph(side,near_n,min_d,plot=plot)
-        elif form == 'corr_sim_set':
-            side = side.T.corr().values
-            processed_side = umap_graph(side,near_n,min_d,plot=plot)
-        elif form == 'sqrt_sim_set':
-            side = scipy.linalg.sqrtm(side.T.corr())
-            processed_side = umap_graph(side,near_n,min_d,plot=plot)
+    elif form == 'corr_sim_set':
+        side = side.T.corr().values
+        final_side = umap_graph(side,near_n,min_d,plot=plot)
 
-        laplacian = graph_laplacian(processed_side)
-        final_side = eigen(laplacian)
+    elif form == 'sqrt_sim_set':
+        side = scipy.linalg.sqrtm(side.T.corr())
+        final_side = umap_graph(side,near_n,min_d,plot=plot)
 
     return final_side
 
