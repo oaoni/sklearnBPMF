@@ -16,7 +16,7 @@ class Wrapper(BaseEstimator):
 
     def __init__(self, prior, num_latent, burnin, num_samples,
                  verbose, checkpoint_freq, save_freq, save_name,
-                 num_threads, report_freq, metric_mode):
+                 num_threads, report_freq, metric_mode, col_side):
 
         self.prior = prior
         self.num_latent = num_latent
@@ -29,6 +29,7 @@ class Wrapper(BaseEstimator):
         self.num_threads = num_threads
         self.report_freq = report_freq if report_freq else num_samples
         self.metric_mode = metric_mode
+        self.col_side = col_side
 
         self.train_rmse = None
         self.test_corr = None
