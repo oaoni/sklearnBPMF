@@ -243,7 +243,7 @@ class Wrapper(BaseEstimator):
                             test_corr, rmse_avg))
 
         fig.subplots_adjust(top=0.90)
-        if saveplot:
+        if self.keep_file:
             fig.savefig('figure_log.png')
             print("Saved figure to current working directory..")
 

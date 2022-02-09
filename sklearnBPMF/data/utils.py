@@ -206,7 +206,7 @@ def sample_mask(M,frac,n_frac,use_upper=False,use_index=False,
         index = weights if isinstance(weights,pd.Series) else M
 
         # n_frac = int(((M.shape[0]**2)/2)*frac)
-        ind = index.sample(**sample_kwargs,replace=True,weights=weights,
+        ind = index.sample(**sample_kwargs, replace=True, weights=weights,
                           random_state=random_state).index
 
         multInd = pd.MultiIndex.from_arrays([ind[::2], ind[1::2]])
@@ -244,7 +244,7 @@ def sample_mask(M,frac,n_frac,use_upper=False,use_index=False,
 
     return M_train, M_test, S_train, S_test
 
-def side_process(side, form, near_n=15,min_d=0.1,plot=True,**graph_kwargs):
+def side_process(side, form, near_n=15, min_d=0.1, plot=True, **graph_kwargs):
     """ Various forms of processing side information for gi side information
     """
 
