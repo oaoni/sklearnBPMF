@@ -37,7 +37,7 @@ class Wrapper(BaseEstimator):
         self.sample_iter = None
         self.train_dict = None
 
-    def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True, complete_matrix=None):
+    def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True, complete_matrix=None, **plot_kwargs):
         # Initialize the training session method
         self.addData(X_train, X_test, X_side)
 
@@ -56,7 +56,7 @@ class Wrapper(BaseEstimator):
             print('Final test correlation is: {}'.format(self.train_dict['test_corr']))
 
         if (make_plot) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
-            self._makePlots(self.train_dict, X_train, X_test, complete_matrix=complete_matrix)
+            self._makePlots(self.train_dict, X_train, X_test, complete_matrix=complete_matrix, **plot_kwargs)
 
         if not self.keep_file:
             print('Deleting temporary save file: {}'.format(self.save_name))
@@ -243,7 +243,7 @@ class Wrapper(BaseEstimator):
                             test_corr, rmse_avg))
 
         fig.subplots_adjust(top=0.90)
-        if self.keep_file:
+        if saveplot:
             fig.savefig('figure_log.png')
             print("Saved figure to current working directory..")
 
