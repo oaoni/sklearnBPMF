@@ -16,7 +16,8 @@ class Wrapper(BaseEstimator):
 
     def __init__(self,num_latent, burnin, num_samples,
                  verbose, checkpoint_freq, save_freq, save_name,
-                 num_threads, report_freq, metric_mode, col_side):
+                 num_threads, report_freq, metric_mode, col_side,
+                 keep_file):
 
         self.num_latent = num_latent
         self.burnin = burnin
@@ -24,11 +25,12 @@ class Wrapper(BaseEstimator):
         self.verbose = verbose
         self.checkpoint_freq = checkpoint_freq
         self.save_freq = save_freq
-        self.save_name = save_name + '.hdf5'
+        self.save_name = save_name + '.hdf5' if keep_file else save_name + '.tmp.hdf5'
         self.num_threads = num_threads
         self.report_freq = report_freq if report_freq else num_samples
         self.metric_mode = metric_mode
         self.col_side = col_side
+        self.keep_file = keep_file
 
         self.train_rmse = None
         self.test_corr = None
@@ -55,6 +57,9 @@ class Wrapper(BaseEstimator):
 
         if (make_plot) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
             self._makePlots(self.train_dict, X_train, X_test, complete_matrix=complete_matrix)
+
+        if not self.keep_file:
+            os.remove(self.save_name)
 
         return self
 
