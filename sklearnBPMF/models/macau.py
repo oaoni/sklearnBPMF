@@ -32,6 +32,9 @@ class Macau(Wrapper):
         if self.col_side:
             self.trainSession.addSideInfo(1, X_side, noise=smurff.FixedNoise(self.side_noise),
                                           direct = self.side_direct)
+        else:
+            self.trainSession.addSideInfo(1, None, noise=smurff.FixedNoise(self.side_noise),
+                                          direct = self.side_direct)
 
         return self
 
