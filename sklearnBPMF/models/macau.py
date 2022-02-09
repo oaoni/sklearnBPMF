@@ -13,7 +13,7 @@ class Macau(Wrapper):
         self.side_direct = side_direct
 
         """Constructor""" #Initialize wrapper
-        Wrapper.__init__(self, prior="macau", num_latent=num_latent, burnin=burnin,
+        Wrapper.__init__(self,num_latent=num_latent, burnin=burnin,
                          num_samples=num_samples, verbose=verbose, checkpoint_freq=checkpoint_freq,
                          save_freq=save_freq, save_name=save_name, num_threads=num_threads,
                          report_freq=report_freq,metric_mode=metric_mode,col_side=col_side)
@@ -32,9 +32,6 @@ class Macau(Wrapper):
         if self.col_side:
             self.trainSession.addSideInfo(1, X_side, noise=smurff.FixedNoise(self.side_noise),
                                           direct = self.side_direct)
-        else:
-            self.trainSession.addSideInfo(1, None, noise=smurff.FixedNoise(self.side_noise),
-                                          direct = self.side_direct)
 
         return self
 
@@ -48,7 +45,7 @@ class BPMF(Wrapper):
         self.side_noise = side_noise
 
         """Constructor""" #Initialize wrapper
-        Wrapper.__init__(self, prior="normal", num_latent=num_latent, burnin=burnin,
+        Wrapper.__init__(self,num_latent=num_latent, burnin=burnin,
                          num_samples=num_samples, verbose=verbose, checkpoint_freq=checkpoint_freq,
                          save_freq=save_freq, save_name=save_name, num_threads=num_threads,
                          report_freq=report_freq,metric_mode=metric_mode,col_side=col_side)

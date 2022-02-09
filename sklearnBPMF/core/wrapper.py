@@ -14,11 +14,10 @@ from sklearnBPMF.data.utils import to_sparse
 class Wrapper(BaseEstimator):
     """Scikit learn wrapper for matrix completion models."""
 
-    def __init__(self, prior, num_latent, burnin, num_samples,
+    def __init__(self,num_latent, burnin, num_samples,
                  verbose, checkpoint_freq, save_freq, save_name,
                  num_threads, report_freq, metric_mode, col_side):
 
-        self.prior = prior
         self.num_latent = num_latent
         self.burnin = burnin
         self.num_samples = num_samples
@@ -250,7 +249,7 @@ class Wrapper(BaseEstimator):
             os.remove(self.save_name)
 
         self.trainSession = smurff.TrainSession(
-            priors=[self.prior, self.prior],
+            priors=['normal', 'normal'],
             num_latent=self.num_latent,
             burnin=self.burnin,
             nsamples=self.num_samples,
