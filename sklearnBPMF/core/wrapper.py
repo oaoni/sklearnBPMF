@@ -59,6 +59,7 @@ class Wrapper(BaseEstimator):
             self._makePlots(self.train_dict, X_train, X_test, complete_matrix=complete_matrix)
 
         if not self.keep_file:
+            print('Deleting temporary save file: {}'.format(self.save_name))
             os.remove(self.save_name)
 
         return self
