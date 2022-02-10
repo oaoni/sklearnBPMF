@@ -17,5 +17,5 @@ setuptools.setup(
     },
     license='MIT',
     packages=find_packages(include=['sklearnBPMF','sklearnBPMF.*']),
-    install_requires=['smurff','umap','scipy','networkx','sklearn','pandas','numpy'],
+    install_requires=['smurff','umap-learn','scipy','networkx','sklearn','pandas','numpy'],
 )
