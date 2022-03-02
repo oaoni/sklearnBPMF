@@ -44,6 +44,7 @@ class BPMF(Wrapper):
                      report_freq=None, metric_mode=1, col_side=None, keep_file=True):
 
         self.side_noise = side_noise
+        self.side_direct = side_direct
 
         """Constructor""" #Initialize wrapper
         Wrapper.__init__(self,num_latent=num_latent, burnin=burnin,
