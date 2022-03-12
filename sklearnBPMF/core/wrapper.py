@@ -7,7 +7,7 @@ from sklearn.base import BaseEstimator
 from scipy.cluster.hierarchy import linkage, dendrogram
 from scipy.sparse import coo_matrix
 
-from sklearnBPMF.core import corr_metric
+from sklearnBPMF.core import corr_metric, norm_metric
 from sklearnBPMF.data.utils import to_sparse
 
 
@@ -106,10 +106,12 @@ class Wrapper(BaseEstimator):
             # Get test predictions
             predAvg, predStd, predCoord = self.predict(return_std=True)
             testCorr = corr_metric(predAvg, self.X_test.data)
+            testNorm = norm_metric(predAvg, self.X_test.data)
 
             #Assign current training metrics
             self.train_dict = dict(sample_iter = sample_iter,
                                    test_corr = testCorr,
+                                   test_norm = testNorm,
                                    train_rmse = macauStatus.train_rmse,
                                    rmse_avg = macauStatus.rmse_avg,
                                    rmse_lsample = macauStatus.rmse_1sample,

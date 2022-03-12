@@ -9,6 +9,10 @@ def corr_metric(predicted, measured):
 
     return corr[0][-1]
 
+def norm_metric(predicted, measured):
+    norm = np.linalg.norm(predicted-measured,ord=2)
+
+    return norm
 
 def effective_rank(m):
     """
