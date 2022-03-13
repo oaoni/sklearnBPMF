@@ -7,7 +7,7 @@ from sklearn.base import BaseEstimator
 from scipy.cluster.hierarchy import linkage, dendrogram
 from scipy.sparse import coo_matrix
 
-from sklearnBPMF.core import corr_metric, norm_metric
+from sklearnBPMF.core import corr_metric, distance_metric
 from sklearnBPMF.data.utils import to_sparse
 
 
