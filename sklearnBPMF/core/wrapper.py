@@ -106,23 +106,15 @@ class Wrapper(BaseEstimator):
             # Get test predictions
             predAvg, predStd, predCoord = self.predict(return_std=True)
             testCorr = corr_metric(predAvg, self.X_test.data)
-            testSeuc = distance_metric(predAvg, self.X_test.data, 'seuclidean', None)
-            testCorr2 = distance_metric(predAvg, self.X_test.data, 'correlation', None)
-            testCan = distance_metric(predAvg, self.X_test.data, 'canberra', None)
-            testBray = distance_metric(predAvg, self.X_test.data, 'braycurtis', None)
-            testMin08 = distance_metric(predAvg, self.X_test.data, 'minkowski', 0.8)
-            testMin3 = distance_metric(predAvg, self.X_test.data, 'minkowski', 3)
+            testMin5 = distance_metric(predAvg, self.X_test.data, 'minkowski', 5)
+            testMin10 = distance_metric(predAvg, self.X_test.data, 'minkowski', 10)
 
 
             #Assign current training metrics
             self.train_dict = dict(sample_iter = sample_iter,
                                    test_corr = testCorr,
-                                   test_seuc = testSeuc,
-                                   test_corr2 = testCorr2,
-                                   test_can = testCan,
-                                   test_bray = testBray,
-                                   test_min1 = testMin08,
-                                   test_min2 = testMin3,
+                                   test_min5 = testMin5,
+                                   test_min10 = testMin10,
                                    train_rmse = macauStatus.train_rmse,
                                    rmse_avg = macauStatus.rmse_avg,
                                    rmse_lsample = macauStatus.rmse_1sample,
