@@ -3,16 +3,20 @@ import pandas as pd
 from scipy.stats import entropy
 from scipy.linalg import svd
 from sklearn.metrics.pairwise import pairwise_kernels
+from scipy.spatial.distance import cdist
 
 def corr_metric(predicted, measured):
     corr = np.corrcoef(predicted, measured)
 
     return corr[0][-1]
 
-def norm_metric(predicted, measured):
-    norm = np.linalg.norm(predicted-measured,ord=2)
+def distance_metric(predicted, measured, metric, param):
+    distance = cdist(predicted.reshape(1,-1),
+                     measured.reshape(1,-1),
+                     metric,
+                     param)
 
-    return norm
+    return distance
 
 def effective_rank(m):
     """
