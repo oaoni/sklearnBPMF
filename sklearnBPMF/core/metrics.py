@@ -16,7 +16,7 @@ def distance_metric(predicted, measured, metric, param):
                      metric,
                      param)
 
-    return distance
+    return distance[0][0]
 
 def effective_rank(m):
     """
