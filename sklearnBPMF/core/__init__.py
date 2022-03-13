@@ -1,2 +1,2 @@
-from .metrics import corr_metric, norm_metric
+from .metrics import corr_metric, distance_metric
 from .wrapper import Wrapper
