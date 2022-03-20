@@ -124,12 +124,12 @@ class Wrapper(BaseEstimator):
 
         # Get test predictions
         predictions = self.trainSession.getTestPredictions()
-        predAvg = np.array([p.pred_avg for p in predictions])
+        predAvg = [p.pred_avg for p in predictions]
         predCoord = [p.coords for p in predictions]
 
         if return_std:
-            predVar = np.array([np.var(p.pred_all) for p in predictions])
-            predStd = np.array([np.sqrt(p) for p in predVar])
+            predVar = [np.var(p.pred_all) for p in predictions]
+            predStd = [np.sqrt(p) for p in predVar]
             return predAvg, predStd, predCoord
         else:
             return predAvg, predCoord
@@ -141,12 +141,12 @@ class Wrapper(BaseEstimator):
         predictor = self.trainSession.makePredictSession()
         p_all = predictor.predict_all()
         p_all_avg = sum(p_all) / len(p_all)
-        predAvg = p_all_avg[self.train_coords[0],self.train_coords[1]]
+        predAvg = list(p_all_avg[self.train_coords[0],self.train_coords[1]])
         predCoord = list(zip(*self.train_coords))
 
         if return_std:
             predVar = np.var([p[self.train_coords[0], self.train_coords[1]] for p in p_all],axis=0)
-            predStd = np.square(predVar)
+            predStd = np.square(predVar).tolist()
             return predAvg, predStd, predCoord
         else:
             return predAvg, predCoord
