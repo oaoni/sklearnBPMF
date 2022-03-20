@@ -153,13 +153,13 @@ class Wrapper(BaseEstimator):
 
     def _makePlots(self, train_dict, X_train, X_test, saveplot=True, complete_matrix=None):
 
-        pred_avg = train_dict['pred_avg']
-        pred_std = train_dict['pred_std']
+        pred_avg = np.array(train_dict['pred_avg'])
+        pred_std = np.array(train_dict['pred_std'])
         test_corr = train_dict['test_corr']
         rmse_avg = train_dict['rmse_avg']
         pred_coord = train_dict['pred_coord']
-        train_avg = train_dict['train_avg']
-        train_std = train_dict['train_std']
+        train_avg = np.array(train_dict['train_avg'])
+        train_std = np.array(train_dict['train_std'])
         train_coord = train_dict['train_coord']
         shape = X_test.shape
         n_train_examples = len(X_train.data)//2
