@@ -11,8 +11,8 @@ def corr_metric(predicted, measured):
     return corr[0][-1]
 
 def distance_metric(predicted, measured, metric, param):
-    distance = cdist(predicted.reshape(1,-1),
-                     measured.reshape(1,-1),
+    distance = cdist(np.array(predicted).reshape(1,-1),
+                     np.array(measured).reshape(1,-1),
                      metric,
                      param)
 
