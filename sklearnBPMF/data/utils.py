@@ -62,10 +62,14 @@ def load_gi_example(frac, data_path, side_path, cluster=None):
 
 def makeTrainTest(M,frac=None,n_frac=None,use_upper=True,use_index=False,
                   avoid_diag=False,weights=None,diag_for_trainset=False,
-                  random_state=np.random.RandomState(30)):
+                  random_state=np.random.RandomState(30),
+                  drop_index=None,drop_columns=None):
 
     #Two functions for sampling from the phenotype matrix
     random.seed(30)
+
+    if drop_index or drop_columns:
+        M = M.drop(index=drop_index,columns=drop_columns)
 
     #Sample a percentage of the genes
     M_train, M_test, S_train, S_test = sample_mask(M,frac,n_frac,use_upper=use_upper,use_index=use_index,
