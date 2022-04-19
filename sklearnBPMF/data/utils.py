@@ -367,3 +367,6 @@ def quantile_mask(M, q, weights=None):
     qMasked = M[M_quant >= quant].replace(np.nan, 0)
 
     return qMasked
+
+def check_symmetric(a, rtol=1e-05, atol=1e-08):
+    return np.allclose(a, a.T, rtol=rtol, atol=atol)
