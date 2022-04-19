@@ -71,7 +71,7 @@ def makeTrainTest(M,frac=None,n_frac=None,use_upper=True,use_index=False,
     if drop_index or drop_columns:
         M = M.drop(index=drop_index,columns=drop_columns)
 
-    #Sample a percentage of the genes
+    #Sample a percentage of the entries
     M_train, M_test, S_train, S_test = sample_mask(M,frac,n_frac,use_upper=use_upper,use_index=use_index,
                                                     avoid_diag=avoid_diag,weights=weights,
                                                     diag_for_trainset=diag_for_trainset,
@@ -102,20 +102,6 @@ def saveDataFrameH5(data_dict, fname='matrix_data.h5', verbose=True):
 
     s.close()
 
-
-def saveTrainTestH5(data_dict, fname='matrix_data.h5'):
-    print("Function deprecated, replaced by saveDataFrameH5")
-    s = pd.HDFStore(fname) # Ideally, check if exists first
-
-    for key, value in data_dict.items():
-        try:
-            s[key] = value
-        except TypeError:
-            s[key] = pd.DataFrame(value)
-
-    print('Pandas h5py file saved to {}'.format(fname))
-    s.close()
-
 def loadDataFrameH5(fname):
     data_dict = {}
 
@@ -129,19 +115,6 @@ def loadDataFrameH5(fname):
         for key in h5data:
             data_dict[key] = s.get(key)
 
-    return data_dict
-
-def loadTrainTestH5(fname):
-    print("Function deprecated, replaced by loadDataFrameH5")
-    data_dict = {}
-
-    s = pd.HDFStore(fname)
-    h5data = [x.split('/')[1] for x in s.keys()]
-
-    for key in h5data:
-        data_dict[key] = s.get(key)
-
-    s.close()
     return data_dict
 
 def upper_triangle(M, k=1):
