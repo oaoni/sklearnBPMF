@@ -60,24 +60,78 @@ def load_gi_example(frac, data_path, side_path, cluster=None):
 
     return [M,S_train,S_test,M_train,M_test],side
 
-def makeTrainTest(M,frac=None,n_frac=None,use_upper=True,use_index=False,
-                  avoid_diag=False,weights=None,diag_for_trainset=False,
-                  random_state=np.random.RandomState(30),
-                  drop_index=None,drop_columns=None):
+def make_mask(M, indx, symmetric=True):
 
-    #Two functions for sampling from the phenotype matrix
-    random.seed(30)
+    mask = pd.DataFrame(0, index=M.index, columns=M.columns)
+
+    for ind in indx:
+        mask.loc[ind] = 1
+
+    if symmetric:
+        mask = mask + mask.T
+
+    return mask
+
+def sample_mask(M,frac,sub_frac=None,symmetric=True,
+                random_state=None, avoid_diag=False,weights=None,
+                diag_for_trainset=False):
+    """ Samples a fraction of marix elements # Seperate matrices for sampling and selecting data with weights
+    returns: train/test matrix (M), and Mask (S)
+    """
+
+    if isinstance(frac,int):
+        sample_kwargs = {'n':frac}
+    elif isinstance(frac,float):
+        sample_kwargs = {'frac':frac}
+
+    weights = weights.stack(dropna=False) if isinstance(weights,pd.DataFrame) else None
+
+    k = 0
+    if avoid_diag:
+        k = 1 # Remove diagonal for symmetric
+        np.fill_diagonal(M.values,np.nan) # Remove diag for full
+
+    # Samples from upper triangular for symmetrical relational matrices, else samples from entire matrix
+    matrix = upper_triangle(M,k=k) if symmetric else M.stack(dropna=True)
+
+    multInd = matrix.sample(**sample_kwargs, replace=False,
+                            random_state=random_state,weights=weights).index
+
+    if sub_frac:
+        train_ind, test_ind = train_test_split(multInd,train_size=sub_frac,random_state=random_state)
+        S_train = make_mask(M,train_ind,symmetric=symmetric)
+        S_test = make_mask(M,test_ind,symmetric=symmetric)
+
+    else:
+        S_train = make_mask(M,multInd,symmetric=symmetric)
+        S_test = pd.DataFrame(1, index=M.index, columns=M.columns) * ((S_train == 0)*1)
+
+        if avoid_diag:
+            np.fill_diagonal(S_test.values, 0)
+
+    if diag_for_trainset:
+        np.fill_diagonal(S_train.values, 1)
+
+    return S_train, S_test
+
+
+
+def makeTrainTest(M,frac=None,sub_frac=None,symmetric=True,
+                  avoid_diag=True,weights=None,diag_for_trainset=False,
+                  random_state=None,drop_index=None,drop_columns=None):
+    matrix = M.copy()
 
     if drop_index or drop_columns:
-        M = M.drop(index=drop_index,columns=drop_columns)
+        matrix = matrix.drop(index=drop_index,columns=drop_columns)
 
-    #Sample a percentage of the entries
-    M_train, M_test, S_train, S_test = sample_mask(M,frac,n_frac,use_upper=use_upper,use_index=use_index,
-                                                    avoid_diag=avoid_diag,weights=weights,
-                                                    diag_for_trainset=diag_for_trainset,
-                                                    random_state=random_state)
-    M_train = M_train.values
-    M_test = M_test.values
+    #Sample a subset of the entries
+    S_train, S_test = sample_mask(matrix,frac,sub_frac=sub_frac,symmetric=symmetric,
+                                avoid_diag=avoid_diag,weights=weights,
+                                diag_for_trainset=diag_for_trainset,
+                                random_state=random_state)
+
+    M_train = (M * S_train).values
+    M_test =  (M * S_test).values
     S_train = S_train.values
     S_test = S_test.values
 
@@ -124,102 +178,6 @@ def upper_triangle(M, k=1):
     # have to use dropna=FALSE on stack, otherwise will secretly drop nans and upper triangle
     # will not behave as expected!!
     return M.stack(dropna=False).loc[keep]
-
-def sample_mask(M,frac,n_frac,use_upper=False,use_index=False,
-                random_state=np.random.RandomState(30),
-                avoid_diag=False,weights=None,
-                diag_for_trainset=False):
-    """ Samples a fraction of marix elements # Seperate matrices for sampling and selecting data with weights
-    returns: train/test matrix (M), and Mask (S)
-    """
-
-    if use_upper:
-
-        if isinstance(n_frac,int):
-            sample_kwargs = {'n':n_frac*2}
-        elif isinstance(frac,float):
-            sample_kwargs = {'frac':frac*2}
-        # k = 1 if avoid_diag else 0
-        k = 0
-        weights = weights.stack(dropna=False) if isinstance(weights,pd.DataFrame) else None
-
-        #Samples from upper triangular. For symmetrical relational matrices.
-        multInd = upper_triangle(M, k=k).sample(**sample_kwargs, replace=False,
-                                                random_state=random_state,
-                                                weights=weights).index
-
-        nfrac = len(multInd)//2
-        multInd = [x for x in multInd if x[0] != x[1]][:nfrac]
-
-        #Initialize indicators
-        S_train = pd.DataFrame(0, index=M.index, columns=M.columns)
-        S_test = pd.DataFrame(1, index=M.index, columns=M.columns)
-
-        if avoid_diag:
-            np.fill_diagonal(S_test.values, 0)
-
-        if diag_for_trainset:
-            np.fill_diagonal(S_train.values, 1)
-
-        for Ind in multInd:
-            S_train.loc[Ind] = 1
-            S_test.loc[Ind] = 0
-
-            S_train.loc[Ind[::-1]] = 1
-            S_test.loc[Ind[::-1]] = 0
-
-        M_train = M*S_train
-        M_test = M*S_test
-
-    elif use_index:
-        #Samples from entire matrix
-        #Produce multiindex of sampled elements (might want to return)
-
-        if isinstance(n_frac,int):
-            sample_kwargs = {'n':n_frac*4}
-        elif isinstance(frac,float):
-            sample_kwargs = {'frac':frac*4}
-
-        index = weights if isinstance(weights,pd.Series) else M
-
-        # n_frac = int(((M.shape[0]**2)/2)*frac)
-        ind = index.sample(**sample_kwargs, replace=True, weights=weights,
-                          random_state=random_state).index
-
-        multInd = pd.MultiIndex.from_arrays([ind[::2], ind[1::2]])
-        nfrac = len(multInd)//2
-        multInd = [x for x in multInd if x[0] != x[1]]
-        multInd = [tuple(x) for x in set(frozenset(c) for c in multInd)][:nfrac]
-
-        #Initialize indicators
-        S_train = pd.DataFrame(0, index=M.index, columns=M.columns)
-        S_test = pd.DataFrame(1, index=M.index, columns=M.columns)
-
-        if avoid_diag:
-            np.fill_diagonal(S_test.values, 0)
-
-        if diag_for_trainset:
-            np.fill_diagonal(S_train.values, 1)
-
-        for Ind in multInd:
-            S_train.loc[Ind] = 1
-            S_test.loc[Ind] = 0
-
-            S_train.loc[Ind[::-1]] = 1
-            S_test.loc[Ind[::-1]] = 0
-
-        M_train = M*S_train
-        M_test = M*S_test
-    else:
-        test_frac = 1-frac
-        m,n = M.shape
-        S = np.random.rand(m,n)
-        S_train = (S < frac)
-        S_test = (S >= (1-test_frac))
-        M_train = np.multiply(M,S_train)
-        M_test = np.multiply(M,S_test)
-
-    return M_train, M_test, S_train, S_test
 
 def side_process(side, form, near_n=15, min_d=0.1, plot=True, **graph_kwargs):
     """ Various forms of processing side information for gi side information
