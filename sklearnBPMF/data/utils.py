@@ -9,6 +9,7 @@ import scipy
 import smurff
 from scipy.sparse import coo_matrix
 from scipy.cluster.hierarchy import linkage, dendrogram
+from sklearn.model_selection import train_test_split
 
 import os
 import tempfile
