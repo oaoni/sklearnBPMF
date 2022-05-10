@@ -131,10 +131,8 @@ def makeTrainTest(M,frac=None,sub_frac=None,symmetric=True,
                                 diag_for_trainset=diag_for_trainset,
                                 random_state=random_state)
 
-    M_train = (M * S_train).values
-    M_test =  (M * S_test).values
-    S_train = S_train.values
-    S_test = S_test.values
+    M_train = M * S_train
+    M_test =  M * S_test
 
     return M,S_train,S_test,M_train,M_test
 
@@ -192,6 +190,9 @@ def side_process(side, form, near_n=15, min_d=0.1, plot=True, **graph_kwargs):
 
     elif form == 'sqrt_only':
         final_side = scipy.linalg.sqrtm(side)
+
+    elif form == 'corr_only':
+        final_side = side.T.corr()
 
     elif form == 'raw_sim_set':
         side = side.values
