@@ -177,7 +177,7 @@ def average_recall(pred_M,true_M,k,cutoff=0.75):
     return mean_recall, recall
 
 # Discounted cumulative gain
-def dcg(pred_M,true_M,k):
+def discounted_gain(pred_M,true_M,k):
     """ Discounted cumulative gain in top k items
         pred_M: predicted rating matrix
         true_M: true rating matrix
@@ -197,13 +197,13 @@ def dcg(pred_M,true_M,k):
     return mean_dcg, cumulative_gain
 
 # Normalized discounted cumulative gain
-def ndcg(pred_M,true_M,k):
+def normalized_gain(pred_M,true_M,k):
     """ Normalized discounted cumulative gain in top k items
         pred_M: predicted rating matrix
         true_M: true rating matrix
     """
 
-    mean_dcg, cumulative_gain = dcg(pred_M,true_M,k)
+    mean_dcg, cumulative_gain = discounted_gain(pred_M,true_M,k)
 
     true_rank, true_rel = item_rank(true_M)
     top_rank = true_rank.iloc[:k,:]
