@@ -8,6 +8,8 @@ from scipy.cluster.hierarchy import linkage, dendrogram
 from scipy.sparse import coo_matrix
 
 from sklearnBPMF.core import corr_metric, distance_metric
+from sklearnBPMF.core.metrics import item_rank, relevance_score, reciprocal_rank, average_precision, average_recall, discounted_gain, normalized_gain
+
 from sklearnBPMF.data.utils import to_sparse
 
 
@@ -37,9 +39,10 @@ class Wrapper(BaseEstimator):
         self.sample_iter = None
         self.train_dict = None
 
-    def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True, complete_matrix=None, **plot_kwargs):
+    def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True, complete_matrix=None,k=10, **plot_kwargs):
         # Initialize the training session method
         self.addData(X_train, X_test, X_side)
+        self.k = k
 
         # Train the model with the observed data
         while self.train_step():
@@ -107,12 +110,28 @@ class Wrapper(BaseEstimator):
             predAvg, predStd, predCoord = self.predict(return_std=True)
             testCorr = corr_metric(predAvg, self.X_test.data)
 
+            data = predAvg
+            row_,col_ = list(zip(*predCoord))
+            X_pred = coo_matrix((data, (row_, col_)))
+            X_pred = pd.DataFrame(X_pred.toarray())
+            X_true = pd.DataFrame(self.X_test.toarray())
+
+            # @k metrics
+            rr = reciprocal_rank(X_pred, X_true, self.k)
+            ap = average_precision(X_pred, X_true, self.k)
+            ar = average_recall(X_pred, X_true, self.k)
+            ndcg = normalized_gain(X_pred, X_true, self.k)
+
             #Assign current training metrics
             self.train_dict = dict(sample_iter = sample_iter,
                                    test_corr = testCorr,
                                    train_rmse = macauStatus.train_rmse,
                                    rmse_avg = macauStatus.rmse_avg,
                                    rmse_lsample = macauStatus.rmse_1sample,
+                                   reciprocal_r = rr,
+                                   mean_precision = ap,
+                                   mean_recall = ar,
+                                   ndcg = ndcg,
                                    pred_avg = predAvg,
                                    pred_std = predStd,
                                    pred_coord = predCoord)
