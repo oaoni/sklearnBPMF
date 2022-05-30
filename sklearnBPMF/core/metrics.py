@@ -86,3 +86,136 @@ def compute_leverage(M):
     lev_scores, lev_sampling = sampling_distribution(target, int(effective_rank(target)/2))
 
     return lev_scores, lev_sampling
+
+def item_rank(M):
+    '''Order user-item pairs based of predicted item ratings for each user'''
+
+    item_dict = {}
+    rating_dict = {}
+    for user,row in M.iterrows():
+        # Absolute value of ratings/predictions used for strong negative and positive values.
+        sorted_row = row.abs().sort_values(ascending=False).index
+        item_ = row[sorted_row].index.values
+        rating_ = row[sorted_row].values
+
+        item_dict[user] = item_
+        rating_dict[user] = rating_
+
+    item_df = pd.DataFrame(item_dict)
+    rating_df = pd.DataFrame(rating_dict)
+
+    return item_df, rating_df
+
+# score rank
+def relevance_score(pred_rank, true_M):
+
+    rel_score = pd.DataFrame(pred_rank.melt()\
+                .apply(lambda x: true_M.loc[x['variable'],x['value']],axis=1).values\
+                .reshape(pred_rank.shape[0],-1, order='F'),columns = pred_rank.columns)
+
+    return rel_score
+
+# Mean reciprocal rank (Average recriprocal hit ratio)
+def reciprocal_rank(pred_M, true_M, k):
+    """ Mean Reciprocal Rank in top k items
+        pred_M: predicted rating matrix
+        true_M: true rating matrix
+    """
+
+    pred_rank,_ = item_rank(pred_M)
+    top_rank = pred_rank.iloc[:k,:]
+
+    top_rel = relevance_score(top_rank, true_M)
+
+    rank_mult = 1/np.arange(1,k+1)
+    reciprocal_rel = top_rel.abs() * rank_mult.reshape(-1,1)
+
+    hit_ratio = reciprocal_rel.sum(axis=0)
+    mean_hit_ratio = hit_ratio.mean()
+
+    return mean_hit_ratio, hit_ratio
+
+# Mean average precision
+def average_precision(pred_M,true_M,k,cutoff=0.75):
+    """ Mean average precision @ k
+        pred_M: predicted rating matrix
+        true_M: true rating matrix
+    """
+
+    pred_rank,_ = item_rank(pred_M)
+    top_rank = pred_rank.iloc[:k,:]
+
+    top_rel = relevance_score(top_rank, true_M)
+
+    rel_quantile = true_M.abs().quantile(q=cutoff,axis=0)
+
+    precision = (top_rel.abs() >= rel_quantile).sum(axis=0)/k
+
+    mean_precision = precision.mean()
+
+    return mean_precision, precision
+
+# Mean average recall
+def average_recall(pred_M,true_M,k,cutoff=0.75):
+    """ Mean average recall @ k
+        pred_M: predicted rating matrix
+        true_M: true rating matrix
+    """
+
+    pred_rank,_ = item_rank(pred_M)
+    top_rank = pred_rank.iloc[:k,:]
+
+    top_rel = relevance_score(top_rank, true_M)
+
+    rel_quantile = true_M.abs().quantile(q=cutoff,axis=0)
+    rel_docs = sum(true_M.iloc[:,0].abs() >= rel_quantile[0])
+
+    recall = (top_rel.abs() >= rel_quantile).sum(axis=0)/rel_docs
+
+    mean_recall = recall.mean()
+
+    return mean_recall, recall
+
+# Discounted cumulative gain
+def dcg(pred_M,true_M,k):
+    """ Discounted cumulative gain in top k items
+        pred_M: predicted rating matrix
+        true_M: true rating matrix
+    """
+
+    pred_rank,_ = item_rank(pred_M)
+    top_rank = pred_rank.iloc[:k,:]
+
+    top_rel = relevance_score(top_rank, true_M)
+
+    rank_discount = 1/np.log2(np.arange(2,k+2))
+    discounted_gain = top_rel.abs() * rank_discount.reshape(-1,1)
+
+    cumulative_gain = discounted_gain.sum(axis=0)
+    mean_dcg = cumulative_gain.mean()
+
+    return mean_dcg, cumulative_gain
+
+# Normalized discounted cumulative gain
+def ndcg(pred_M,true_M,k):
+    """ Normalized discounted cumulative gain in top k items
+        pred_M: predicted rating matrix
+        true_M: true rating matrix
+    """
+
+    mean_dcg, cumulative_gain = dcg(pred_M,true_M,k)
+
+    true_rank, true_rel = item_rank(true_M)
+    top_rank = true_rank.iloc[:k,:]
+    top_rel = true_rel.iloc[:k,:]
+
+    rank_discount = 1/np.log2(np.arange(2,k+2))
+
+    ideal_discounted_gain = top_rel.abs() * rank_discount.reshape(-1,1)
+
+    ideal_cumulative_gain = ideal_discounted_gain.sum(axis=0)
+
+    normalized_cg = cumulative_gain / ideal_cumulative_gain
+    mean_ndcg = mean_dcg / ideal_cumulative_gain.mean()
+
+    return mean_ndcg, normalized_cg
