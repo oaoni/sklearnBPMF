@@ -40,10 +40,9 @@ class Wrapper(BaseEstimator):
         self.sample_iter = None
         self.train_dict = None
 
-    def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True, complete_matrix=None,k=10, **plot_kwargs):
+    def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True, complete_matrix=None, **plot_kwargs):
         # Initialize the training session method
         self.addData(X_train, X_test, X_side)
-        self.k = k
 
         # Train the model with the observed data
         while self.train_step():
@@ -118,10 +117,10 @@ class Wrapper(BaseEstimator):
             X_true = pd.DataFrame(self.X_test.toarray())
 
             # @k metrics
-            rr = reciprocal_rank(X_pred, X_true, self.k)
-            ap = average_precision(X_pred, X_true, self.k)
-            ar = average_recall(X_pred, X_true, self.k)
-            ndcg = normalized_gain(X_pred, X_true, self.k)
+            rr = reciprocal_rank(X_pred, X_true, 15)
+            ap = average_precision(X_pred, X_true, 15)
+            ar = average_recall(X_pred, X_true, 15)
+            ndcg = normalized_gain(X_pred, X_true, 15)
 
             #Assign current training metrics
             self.train_dict = dict(sample_iter = sample_iter,
