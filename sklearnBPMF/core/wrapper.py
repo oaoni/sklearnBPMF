@@ -117,10 +117,10 @@ class Wrapper(BaseEstimator):
             X_true = pd.DataFrame(self.X_test.toarray())
 
             # @k metrics
-            rr = reciprocal_rank(X_pred, X_true, 15)[0]
-            ap = average_precision(X_pred, X_true, 15)[0]
-            ar = average_recall(X_pred, X_true, 15)[0]
-            ndcg = normalized_gain(X_pred, X_true, 15)[0]
+            rr = reciprocal_rank(X_pred, X_true, 50)[0]
+            ap = average_precision(X_pred, X_true, 50)[0]
+            ar = average_recall(X_pred, X_true, 50)[0]
+            ndcg = normalized_gain(X_pred, X_true, 50)[0]
 
             #Assign current training metrics
             self.train_dict = dict(sample_iter = sample_iter,
