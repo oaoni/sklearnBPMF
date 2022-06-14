@@ -36,6 +36,9 @@ class BayesianRegression():
                 print("Convergence after ", str(i), " iterations")
                 break
 
+        # Compute uncertainty
+        self.variance = ((X @ self.cov_) @ (X.T)) + self.sigma_
+
     def transform(self,X):
 
         y_star = X @ self.mu_
