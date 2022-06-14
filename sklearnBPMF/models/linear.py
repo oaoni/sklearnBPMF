@@ -45,6 +45,8 @@ class BayesianRegression():
         else:
             y_pred = y_star + y_star.T
 
+        return y_pred
+
     # Weight posterior
     def weight_post(self, X,y,alpha,sigma):
 
