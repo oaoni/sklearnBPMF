@@ -1,5 +1,6 @@
 import smurff
 import copy
+import numpy as np
 
 class BayesianRegression():
     def __init__(self,alpha_,sigma_,tol=1e-3,max_iters=0,bias_=True):
