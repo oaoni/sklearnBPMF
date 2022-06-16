@@ -10,6 +10,7 @@ import smurff
 from scipy.sparse import coo_matrix
 from scipy.cluster.hierarchy import linkage, dendrogram
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import PolynomialFeatures
 
 import os
 import tempfile
@@ -329,7 +330,7 @@ def quantile_mask(M, q, weights=None):
     return qMasked
 
 def check_symmetric(a, rtol=1e-05, atol=1e-08):
-    
+
     return np.allclose(a, a.T, rtol=rtol, atol=atol)
 
 def add_bias(M,both_dims=False):
