@@ -54,7 +54,7 @@ class BayesianRegression:
             if self.bias_both_dim:
                 y_star = (X @ self.mu_)[1:,1:]
             else:
-                y_star = (X @ self.mu_)[,1:]
+                y_star = (X @ self.mu_)[:,1:]
         else:
             y_star = X @ self.mu_
 
