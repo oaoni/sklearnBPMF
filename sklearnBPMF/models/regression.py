@@ -73,8 +73,8 @@ class BayesianRegression:
 
         # Format bias
         if self.bias:
-            X = self.add_bias(X,both_dims=self.bias_both_dim)
-            y = self.add_bias(y,both_dims=self.bias_both_dim)
+            X = add_bias(X,both_dims=self.bias_both_dim)
+            y = add_bias(y,both_dims=self.bias_both_dim)
 
         return X,y
 
