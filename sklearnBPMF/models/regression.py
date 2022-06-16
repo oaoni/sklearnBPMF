@@ -1,20 +1,26 @@
 import smurff
 import copy
 import numpy as np
+from sklearnBPMF.data.utils import add_bias
 
-class BayesianRegression():
-    def __init__(self,alpha_,sigma_,tol=1e-3,max_iters=0,bias_=True):
+class BayesianRegression:
+    def __init__(self,alpha,sigma,model='collective',tol=1e-3,max_iters=0,bias=True, bias_both_dim=False):
 
-        self.alpha_ = alpha_
-        self.sigma_ = sigma_
+        self.alpha_ = alpha
+        self.sigma_ = sigma
+        self.model = model
         self.tol = tol
         self.max_iters = max_iters
-        self.bias_ = bias_
+        self.bias = bias
+        self.bias_both_dim = bias_both_dim
 
         self.cov_ = None
         self.mu_ = None
+        self.side = None
 
-    def fit(self,X,y):
+    def fit(self,X,y,side=None):
+
+        X,y = self.format_data(X,y,side)
 
         # Initial prediction of the weight posterior mean and covariance
         self.cov_, self.mu_ = self.weight_post(X,y,self.alpha_,self.sigma_)
@@ -37,18 +43,40 @@ class BayesianRegression():
                 break
 
         # Compute uncertainty
-        self.variance = ((X @ self.cov_) @ (X.T)) + self.sigma_
+        variance = ((X @ self.cov_) @ (X.T)) + self.sigma_
+        self.variance = variance + variance.T
 
     def transform(self,X):
 
-        y_star = X @ self.mu_
+        X,_ = self.format_data(X,X,None)
 
-        if self.bias_:
-            y_pred = y_star[:,1:X.shape[1]] + y_star[:,1:X.shape[1]].T
+        if self.bias:
+            if self.bias_both_dim:
+                y_star = (X @ self.mu_)[1:,1:]
+            else:
+                y_star = (X @ self.mu_)[,1:]
         else:
-            y_pred = y_star + y_star.T
+            y_star = X @ self.mu_
+
+        y_pred = y_star + y_star.T
 
         return y_pred
+
+    def format_data(self,X,y,side):
+
+        # Format data with side information
+        if self.model == 'noside':
+            X_ = X
+        elif self.model == 'collective':
+            self.side = side
+            X_ = pd.concat([X,side],axis=0)
+
+        # Format bias
+        if self.bias:
+            X = self.add_bias(X,both_dims=self.bias_both_dim)
+            y = self.add_bias(y,both_dims=self.bias_both_dim)
+
+        return X,y
 
     # Weight posterior
     def weight_post(self, X,y,alpha,sigma):

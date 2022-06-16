@@ -329,4 +329,16 @@ def quantile_mask(M, q, weights=None):
     return qMasked
 
 def check_symmetric(a, rtol=1e-05, atol=1e-08):
+    
     return np.allclose(a, a.T, rtol=rtol, atol=atol)
+
+def add_bias(M,both_dims=False):
+
+    biaser = PolynomialFeatures(degree=1, include_bias=True, interaction_only=False)
+
+    if both_dims:
+        M = biaser.fit_transform(biaser.fit_transform(M).T).T
+    else:
+        M = biaser.fit_transform(M)
+
+    return M
