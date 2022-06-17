@@ -75,7 +75,7 @@ class BayesianRegression:
         # Format bias
         if self.bias:
             X = add_bias(X,both_dims=self.bias_both_dim)
-            if y:
+            if isinstance(y,np.ndarray):
                 y = add_bias(y,both_dims=self.bias_both_dim)
 
         return X,y
