@@ -71,6 +71,8 @@ class BayesianRegression:
         if self.model == 'collective':
             self.side = side
             X = np.concatenate([X,side])
+            if isinstance(y,np.ndarray):
+                y = np.concatenate([y,side])
 
         # Format bias
         if self.bias:
@@ -99,7 +101,6 @@ class BayesianRegression:
         A = alpha
 
         cov = np.linalg.pinv((sigma**-1)*(X.T @ X) + A)
-        print('cov: {}, X: {}'.format(cov.shape, X.shape))
         mu = (sigma**-1)*((cov @ X.T) @ y)
 
         return cov, mu
