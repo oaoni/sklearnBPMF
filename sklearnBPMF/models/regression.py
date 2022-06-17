@@ -99,6 +99,7 @@ class BayesianRegression:
         A = alpha
 
         cov = np.linalg.pinv((sigma**-1)*(X.T @ X) + A)
+        print('cov: {}, X: {}'.format(cov.shape, X.shape))
         mu = (sigma**-1)*((cov @ X.T) @ y)
 
         return cov, mu
