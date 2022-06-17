@@ -68,7 +68,7 @@ class BayesianRegression:
         X,y,side = self.validate_data(X,y,side)
 
         # Format data with side information
-        if side:
+        if isinstance(side,np.ndarray):
             self.side = side
             X = np.concatenate([X,side])
 
