@@ -1,6 +1,7 @@
 import smurff
 import copy
 import numpy as np
+import pandas as pd
 from sklearnBPMF.data.utils import add_bias
 
 class BayesianRegression:
@@ -20,7 +21,7 @@ class BayesianRegression:
 
     def fit(self,X,y,side=None):
 
-        X,y = self.format_data(X,y,side)
+        X,y = self.format_data(X,y=y,side=side)
 
         # Initial prediction of the weight posterior mean and covariance
         self.cov_, self.mu_ = self.weight_post(X,y,self.alpha_,self.sigma_)
@@ -48,7 +49,7 @@ class BayesianRegression:
 
     def transform(self,X):
 
-        X,_ = self.format_data(X,X,None)
+        X,_ = self.format_data(X)
 
         if self.bias:
             if self.bias_both_dim:
@@ -62,21 +63,35 @@ class BayesianRegression:
 
         return y_pred
 
-    def format_data(self,X,y,side):
+    def format_data(self,X,y=None,side=None):
+
+        X,y,side = self.validate_data(X,y,side)
 
         # Format data with side information
-        if self.model == 'noside':
-            X_ = X
-        elif self.model == 'collective':
+        if side:
             self.side = side
-            X_ = pd.concat([X,side],axis=0)
+            X = np.concatenate([X,side])
 
         # Format bias
         if self.bias:
             X = add_bias(X,both_dims=self.bias_both_dim)
-            y = add_bias(y,both_dims=self.bias_both_dim)
+            if y:
+                y = add_bias(y,both_dims=self.bias_both_dim)
 
         return X,y
+
+    def validate_data(self,*args):
+
+        datas = []
+        for arg in args:
+            if isinstance(arg, pd.DataFrame):
+                datas += [arg.values]
+            elif isinstance(arg,np.ndarray):
+                datas += [arg]
+            else:
+                datas += [None]
+
+        return datas
 
     # Weight posterior
     def weight_post(self, X,y,alpha,sigma):
