@@ -49,7 +49,10 @@ class BayesianRegression:
 
     def transform(self,X):
 
-        X,_ = self.format_data(X)
+        X = self.validate_data(X)
+        # Format bias
+        if self.bias:
+            X = add_bias(X,both_dims=self.bias_both_dim)
 
         if self.bias:
             if self.bias_both_dim:
