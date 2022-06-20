@@ -34,7 +34,7 @@ class BayesianRegression:
             sigma_old = copy.copy(self.sigma)
 
             self.alpha, self.sigma = self.update_params(X,y,self.alpha,self.cov_, self.mu_)
-            self.cov_, self.mu_ = self.weight_posterior(X,self.alpha,self.sigma)
+            self.cov_, self.mu_ = self.weight_posterior(X,y,self.alpha,self.sigma)
 
             # Check for convergence
         #     converg = sum(abs(alpha_old - alpha_))
