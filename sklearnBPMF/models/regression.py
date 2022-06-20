@@ -39,7 +39,7 @@ class BayesianRegression:
             # Check for convergence
         #     converg = sum(abs(alpha_old - alpha_))
             converg = abs(sigma_old - self.sigma)
-            if converg < tol:
+            if converg < self.tol:
                 print("Convergence after ", str(i), " iterations")
                 break
 
