@@ -343,3 +343,19 @@ def add_bias(M,both_dims=False):
         M = biaser.fit_transform(M)
 
     return M
+
+def verify_ndarray(*args):
+
+    datas = []
+    for arg in args:
+        if isinstance(arg, pd.DataFrame):
+            datas += [arg.values]
+        elif isinstance(arg,np.ndarray):
+            datas += [arg]
+        else:
+            datas += [None]
+
+    if len(datas) == 1:
+        datas = datas[0]
+
+    return datas
