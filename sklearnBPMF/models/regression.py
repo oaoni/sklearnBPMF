@@ -2,13 +2,13 @@ import smurff
 import copy
 import numpy as np
 import pandas as pd
-from sklearnBPMF.data.utils import add_bias
+from sklearnBPMF.data.utils import add_bias, verify_ndarray
 
 class BayesianRegression:
-    def __init__(self,alpha,sigma,model='collective',tol=1e-3,max_iters=0,bias=True, bias_both_dim=False):
+    def __init__(self,alpha_init,sigma_init,model='collective',tol=1e-3,max_iters=0,bias=True,bias_both_dim=False):
 
-        self.alpha_ = alpha
-        self.sigma_ = sigma
+        self.alpha = alpha_init
+        self.sigma = sigma_init
         self.model = model
         self.tol = tol
         self.max_iters = max_iters
@@ -24,37 +24,36 @@ class BayesianRegression:
         X,y = self.format_data(X,y=y,side=side)
 
         # Initial prediction of the weight posterior mean and covariance
-        self.cov_, self.mu_ = self.weight_post(X,y,self.alpha_,self.sigma_)
+        self.cov_, self.mu_ = self.weight_posterior(X,y,self.alpha,self.sigma)
 
         for i in range(self.max_iters):
                 # Compute the log likelihood
-        #         log_likes += [log_like(X,y,alpha_,sigma_,mu_)]
+        #         log_likes += [log_likelihood(X,y,alpha_,sigma_,mu_)]
 
-            alpha_old = copy.copy(self.alpha_)
-            sigma_old = copy.copy(self.sigma_)
+            alpha_old = copy.copy(self.alpha)
+            sigma_old = copy.copy(self.sigma)
 
-            self.alpha_, self.sigma_ = self.update_params(X,y,alpha_,cov_, mu_)
-            self.cov_, self.mu_ = self.weight_post(X,self.alpha_,self.sigma_)
+            self.alpha, self.sigma = self.update_params(X,y,alpha_,cov_, mu_)
+            self.cov_, self.mu_ = self.weight_posterior(X,self.alpha,self.sigma)
 
             # Check for convergence
         #     converg = sum(abs(alpha_old - alpha_))
-            converg = abs(sigma_old - self.sigma_)
+            converg = abs(sigma_old - self.sigma)
             if converg < tol:
                 print("Convergence after ", str(i), " iterations")
                 break
 
         # Compute uncertainty
-        variance = ((X @ self.cov_) @ (X.T)) + self.sigma_
-        self.variance = variance + variance.T
+        variance = ((X @ self.cov_) @ (X.T)) + self.sigma
+        self.uncertainty = variance + variance.T
 
     def transform(self,X):
 
-        X,_ = self.validate_data(X,X)
-        # Format bias
+        X = verify_ndarray(X)
+
+        # Format bias and perform transformation
         if self.bias:
             X = add_bias(X,both_dims=self.bias_both_dim)
-
-        if self.bias:
             if self.bias_both_dim:
                 y_star = (X @ self.mu_)[1:,1:]
             else:
@@ -68,7 +67,7 @@ class BayesianRegression:
 
     def format_data(self,X,y=None,side=None):
 
-        X,y,side = self.validate_data(X,y,side)
+        X,y,side = verify_ndarray(X,y,side)
 
         # Format data with side information
         if self.model == 'collective':
@@ -83,46 +82,30 @@ class BayesianRegression:
             if isinstance(y,np.ndarray):
                 y = add_bias(y,both_dims=self.bias_both_dim)
 
+        # Format alpha initilization as a diagonal matrix
+        self.alpha = np.diag(self.alpha*np.ones(X.shape[1]))
+
         return X,y
 
-    def validate_data(self,*args):
-
-        datas = []
-        for arg in args:
-            if isinstance(arg, pd.DataFrame):
-                datas += [arg.values]
-            elif isinstance(arg,np.ndarray):
-                datas += [arg]
-            else:
-                datas += [None]
-
-        return datas
-
     # Weight posterior
-    def weight_post(self, X,y,alpha,sigma):
+    def weight_posterior(self,X,y,alpha,sigma):
 
-        A = alpha
-
-        cov = np.linalg.pinv((sigma**-1)*(X.T @ X) + A)
+        cov = np.linalg.pinv((sigma**-1)*(X.T @ X) + alpha)
         mu = (sigma**-1)*((cov @ X.T) @ y)
 
         return cov, mu
 
     def update_params(self, X,y,alpha,cov,mu):
 
-#         gamma = 1 - (np.diag(alpha)*np.diag(cov))
-#         gamma =  np.diag(np.ones(cov.shape[0])) - (alpha*cov)
-        gamma = (alpha*cov)
+        # gamma = (alpha*cov)
+        gamma =  np.diag(np.ones(cov.shape[0])) - (alpha*cov)
         N = X.shape[0]
 
         alpha_new = gamma/(mu**2)
         sigma_new = ((y - (X @ mu))**2).sum()/(N - gamma.sum())
-        print(((y - (X @ mu))**2).sum(),(N - gamma.sum()))
 
         return np.nan_to_num(alpha_new), np.nan_to_num(sigma_new)
 
-    def log_like(self, X,y,alpha,sigma,mu):
+    def log_likelihood(self, X,y,alpha,sigma,mu):
 
-        A = alpha
-
-        return (sigma**(-1/2)*((y - (X @ mu))**2).sum() + mu.T @ A @ mu)
+        return (sigma**(-1/2)*((y - (X @ mu))**2).sum() + mu.T @ alpha @ mu)
