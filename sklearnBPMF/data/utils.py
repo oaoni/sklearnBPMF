@@ -359,3 +359,37 @@ def verify_ndarray(*args):
         datas = datas[0]
 
     return datas
+
+def scaled_interval(start,stop,num,scale,base=10,dtype=float):
+
+    space_kwargs = {'dtype':dtype}
+    if scale == 'linear':
+        Space = np.linspace
+    elif scale == 'log':
+        Space = np.logspace
+        space_kwargs = {'base':base}
+
+    interval_space = np.round(Space(start=start,stop=stop,num=num,**space_kwargs),4).tolist()
+
+    return interval_space
+
+def score_completion(X, X_test, S_test, name):
+    ''''Produce training, testing, and validation scoring metrics (rmse, corr(pearson,), frobenius, relative error)'''
+
+    bool_mask = S_test == 1
+    Xhat = self.transform(X_test)
+
+    predicted = Xhat[bool_mask].stack()
+    measured = X[bool_mask].stack()
+
+    error = predicted - measured
+
+    frob = np.linalg.norm(Xhat - X, 'fro')
+    rel_frob = frob/(np.linalg.norm(X, 'fro'))
+    rmse = np.sqrt(np.mean((error**2)))
+    rel_rmse = rmse/(np.sqrt(np.mean((measured**2))))
+    spearman = predicted.corr(measured, method='spearman')
+    pearson = predicted.corr(measured, method='pearson')
+
+    return {'{}_frob'.format(name):frob, '{}_rel_frob'.format(name):rel_frob, '{}_rmse'.format(name):rmse,
+    '{}_rel_rmse'.format(name):rel_rmse, '{}_spearman'.format(name):spearman, '{}_pearson'.format(name):pearson}
