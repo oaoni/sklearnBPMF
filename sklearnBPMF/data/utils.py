@@ -373,11 +373,11 @@ def scaled_interval(start,stop,num,scale,base=10,dtype=float):
 
     return interval_space
 
-def score_completion(X, X_test, S_test, name):
+def score_completion(X, X_pred, S_test, name):
     ''''Produce training, testing, and validation scoring metrics (rmse, corr(pearson,), frobenius, relative error)'''
 
     bool_mask = S_test == 1
-    Xhat = self.transform(X_test)
+    Xhat = X_pred
 
     predicted = Xhat[bool_mask].stack()
     measured = X[bool_mask].stack()
