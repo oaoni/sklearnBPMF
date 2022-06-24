@@ -11,6 +11,7 @@ from scipy.sparse import coo_matrix
 from scipy.cluster.hierarchy import linkage, dendrogram
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
+from sklearnBPMF.core.metrics import reciprocal_rank, average_precision, average_recall, discounted_gain, normalized_gain
 
 import os
 import tempfile
@@ -373,7 +374,7 @@ def scaled_interval(start,stop,num,scale,base=10,dtype=float):
 
     return interval_space
 
-def score_completion(X, X_pred, S_test, name):
+def score_completion(X, X_pred, S_test, name, k_metrics=False, k=20):
     ''''Produce training, testing, and validation scoring metrics (rmse, corr(pearson,), frobenius, relative error)'''
 
     bool_mask = S_test == 1
@@ -391,5 +392,18 @@ def score_completion(X, X_pred, S_test, name):
     spearman = predicted.corr(measured, method='spearman')
     pearson = predicted.corr(measured, method='pearson')
 
-    return {'{}_frob'.format(name):frob, '{}_rel_frob'.format(name):rel_frob, '{}_rmse'.format(name):rmse,
+    metric_dict = {'{}_frob'.format(name):frob, '{}_rel_frob'.format(name):rel_frob, '{}_rmse'.format(name):rmse,
     '{}_rel_rmse'.format(name):rel_rmse, '{}_spearman'.format(name):spearman, '{}_pearson'.format(name):pearson}
+
+    if rank_metrics:
+        reciprocal_r = reciprocal_rank(Xhat, X, k)[0]
+        mean_precision = average_precision(Xhat, X, k)[0]
+        mean_recall = average_recall(Xhat, X, k)[0]
+        ndcg = normalized_gain(Xhat, X, k)[0]
+
+        metric_dict['{}_reciprocal_r'.format(name)] = reciprocal_r
+        metric_dict['{}_mean_precision'.format(name)] = mean_precision
+        metric_dict['{}_mean_recall'.format(name)] = mean_recall
+        metric_dict['{}_ndcg'.format(name)] = ndcg
+
+    return metric_dict
