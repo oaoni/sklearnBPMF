@@ -395,7 +395,7 @@ def score_completion(X, X_pred, S_test, name, k_metrics=False, k=20):
     metric_dict = {'{}_frob'.format(name):frob, '{}_rel_frob'.format(name):rel_frob, '{}_rmse'.format(name):rmse,
     '{}_rel_rmse'.format(name):rel_rmse, '{}_spearman'.format(name):spearman, '{}_pearson'.format(name):pearson}
 
-    if rank_metrics:
+    if k_metrics:
         reciprocal_r = reciprocal_rank(Xhat, X, k)[0]
         mean_precision = average_precision(Xhat, X, k)[0]
         mean_recall = average_recall(Xhat, X, k)[0]
