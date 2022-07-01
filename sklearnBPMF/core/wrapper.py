@@ -95,6 +95,8 @@ class Wrapper(BaseEstimator):
         if abs(self.rmse - self.rmse_old) < self.tol:
             self.status = 'converged'
             self.store_metrics(self.sample_iter, self.metric_mode)
+            self.trainSession.setSaveFreq(1)
+            self.trainSession.step()
             return False
 
         if self.sample_iter == self.num_samples:
