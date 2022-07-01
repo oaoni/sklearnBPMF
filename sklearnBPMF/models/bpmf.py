@@ -6,7 +6,7 @@ class Macau(Wrapper):
                      num_samples=500, verbose=0, checkpoint_freq=int(10e5),
                      save_freq = -1, save_name="macau_trainable",
                      side_noise=5, side_direct = True, num_threads=1,
-                     report_freq=None, metric_mode=1, col_side=True, keep_file=True):
+                     report_freq=None, metric_mode=1, col_side=True, keep_file=True,tol=1e-5):
 
         #Macau Hyperparameters
         self.side_noise = side_noise
@@ -17,7 +17,7 @@ class Macau(Wrapper):
                          num_samples=num_samples, verbose=verbose, checkpoint_freq=checkpoint_freq,
                          save_freq=save_freq, save_name=save_name, num_threads=num_threads,
                          report_freq=report_freq,metric_mode=metric_mode,col_side=col_side,
-                         keep_file=keep_file)
+                         keep_file=keep_file,tol=tol)
 
     def _makeModel(self, train_data, test_data, X_side):
 
@@ -41,7 +41,7 @@ class BPMF(Wrapper):
                      num_samples=500, verbose=0, checkpoint_freq=int(10e5),
                      save_freq = -1, save_name="bpmf_trainable",
                      side_noise='N/A', side_direct = None, num_threads=1,
-                     report_freq=None, metric_mode=1, col_side=None, keep_file=True):
+                     report_freq=None, metric_mode=1, col_side=None, keep_file=True,tol=1e-5):
 
         self.side_noise = side_noise
         self.side_direct = side_direct
@@ -51,7 +51,7 @@ class BPMF(Wrapper):
                          num_samples=num_samples, verbose=verbose, checkpoint_freq=checkpoint_freq,
                          save_freq=save_freq, save_name=save_name, num_threads=num_threads,
                          report_freq=report_freq,metric_mode=metric_mode,col_side=col_side,
-                         keep_file=keep_file)
+                         keep_file=keep_file,tol=tol)
 
     def _makeModel(self, train_data, test_data, X_side):
 

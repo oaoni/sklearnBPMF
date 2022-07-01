@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import smurff
 import os
+import copy
 import seaborn as sns
 from sklearn.base import BaseEstimator
 from scipy.cluster.hierarchy import linkage, dendrogram
@@ -20,7 +21,7 @@ class Wrapper(BaseEstimator):
     def __init__(self,num_latent, burnin, num_samples,
                  verbose, checkpoint_freq, save_freq, save_name,
                  num_threads, report_freq, metric_mode, col_side,
-                 keep_file):
+                 keep_file, tol):
 
         self.num_latent = num_latent
         self.burnin = burnin
@@ -34,17 +35,22 @@ class Wrapper(BaseEstimator):
         self.metric_mode = metric_mode
         self.col_side = col_side
         self.keep_file = keep_file
+        self.tol = tol
 
         self.train_rmse = None
         self.test_corr = None
         self.sample_iter = None
         self.train_dict = None
+        self.rmse_old = np.Inf
+        self.rmse  = np.Inf
+        self.status = 'init'
 
     def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True, complete_matrix=None, **plot_kwargs):
         # Initialize the training session method
         self.addData(X_train, X_test, X_side)
 
         # Train the model with the observed data
+        self.status = 'running'
         while self.train_step():
             pass
 
@@ -78,9 +84,21 @@ class Wrapper(BaseEstimator):
 
     def train_step(self):
 
+        self.rmse_old = copy.copy(self.rmse)
         self.trainSession.step()
 
-        self.sample_iter = self.trainSession.getStatus().iter
+        macauStatus = self.trainSession.getStatus()
+        self.sample_iter = macauStatus.iter
+
+        self.rmse = macauStatus.rmse_avg
+
+        if abs(self.rmse - self.rmse_old) < self.tol:
+            self.status = 'converged'
+            self.store_metrics(self.sample_iter, self.metric_mode)
+            return False
+
+        if self.sample_iter == self.num_samples:
+            self.status = 'done'
 
         if self.sample_iter % self.report_freq == 0:
             self.store_metrics(self.sample_iter, self.metric_mode)
@@ -98,7 +116,7 @@ class Wrapper(BaseEstimator):
                                    rmse_avg = macauStatus.rmse_avg,
                                    rmse_lsample = macauStatus.rmse_1sample)
 
-        elif (metric_mode == 1) and (self.sample_iter != self.num_samples): # Low memory mode, but final high memory
+        elif (metric_mode == 1) and (self.status == 'running'): # Low memory mode, but final high memory
             # #Assign current training metrics w/o test predictions
             self.train_dict = dict(sample_iter = self.sample_iter,
                                    train_rmse = macauStatus.train_rmse,
