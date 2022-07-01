@@ -92,7 +92,7 @@ class Wrapper(BaseEstimator):
 
         self.rmse = macauStatus.rmse_avg
 
-        if abs(self.rmse - self.rmse_old) < self.tol:
+        if (abs(self.rmse - self.rmse_old) < self.tol) and (self.status == 'running'):
             self.status = 'converged'
             self.store_metrics(self.sample_iter, self.metric_mode)
             self.trainSession.setSaveFreq(1)
