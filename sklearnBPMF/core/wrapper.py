@@ -222,7 +222,7 @@ class Wrapper(BaseEstimator):
         pred_clust = (test_sparse + train_sparse)[:,clust_index][clust_index,:].toarray()
         std_clust = (test_std_sparse + train_std_sparse)[:,clust_index][clust_index,:].toarray()
 
-        fig, ax = plt.subplots(3, 3, figsize=(20, 20))
+        fig, ax = plt.subplots(3, 2, figsize=(20, 20))
 
         sns.heatmap(M_clust,robust=True,ax=ax[0,0], square=True,
                     yticklabels=False, xticklabels=False)
@@ -232,47 +232,49 @@ class Wrapper(BaseEstimator):
                     yticklabels=False, xticklabels=False)
         ax[0, 1].set_title('Predicted Matrix')
 
-        sns.heatmap(std_clust,robust=True,ax=ax[0,2], cmap='viridis',
+        sns.heatmap(std_clust,robust=True,ax=ax[1,0], cmap='viridis',
                     yticklabels=False, xticklabels=False, square=True)
-        ax[0, 2].set_title('Uncertainty (Stdev.)')
+        ax[1, 0].set_title('Uncertainty (Stdev.)')
 
-        ax[1, 0].scatter(X_test.data, pred_avg, edgecolors=(0, 0, 0))
-        ax[1, 0].plot([X_test.data.min(), X_test.data.max()], [pred_avg.min(), pred_avg.max()], 'k--',
+        ax[1, 1].plot(x_ax, X_test.data[sort_vals], label="actual")
+        ax[1, 1].fill_between(x_ax, X_test.data[sort_vals] - pred_std[sort_vals],
+                              X_test.data[sort_vals] + pred_std[sort_vals],
+                              alpha=0.5, label='std')
+        ax[1, 1].set_title('predicted stdev. relative to measured value')
+        ax[1, 1].legend()
+
+
+        ax[2, 0].scatter(X_test.data, pred_avg, edgecolors=(0, 0, 0))
+        ax[2, 0].plot([X_test.data.min(), X_test.data.max()], [pred_avg.min(), pred_avg.max()], 'k--',
                       lw=4)
-        ax[1, 0].set_xlabel('Measured')
-        ax[1, 0].set_ylabel('Predicted')
-        ax[1, 0].set_title('Measured vs Avg. Prediction')
+        ax[2, 0].set_xlabel('Measured')
+        ax[2, 0].set_ylabel('Predicted')
+        ax[2, 0].set_title('Measured vs Avg. Prediction')
 
-        ax[1, 1].scatter(pred_std, pred_avg, edgecolors=(0, 0, 0))
-        ax[1, 1].set_xlabel('Standard Deviation')
-        ax[1, 1].set_ylabel('Predicted')
-        ax[1, 1].set_title('Stdev. vs Prediction')
+        ax[2, 1].scatter(pred_std, pred_avg, edgecolors=(0, 0, 0))
+        ax[2, 1].set_xlabel('Standard Deviation')
+        ax[2, 1].set_ylabel('Predicted')
+        ax[2, 1].set_title('Stdev. vs Prediction')
 
         x_ax = np.arange(len(X_test.data))
         sort_vals = np.argsort(X_test.data)
-        ax[1, 2].plot(x_ax, X_test.data[sort_vals], linewidth=4, label="measured")
-        ax[1, 2].plot(x_ax, pred_avg[sort_vals], 'rx', alpha=0.5, label='predicted')
-        ax[1, 2].set_title('Sorted and overlayed measured and predicted values')
-        ax[1, 2].legend()
 
-        ax[2, 0].plot(x_ax, X_test.data[sort_vals], linewidth=4, label="measured")
-        ax[2, 0].plot(x_ax, pred_std[sort_vals], 'r', label='stdev.')
-        ax[2, 0].set_title('Sorted and overlayed measured stdev values')
-        ax[2, 0].legend()
+        # ax[1, 2].plot(x_ax, X_test.data[sort_vals], linewidth=4, label="measured")
+        # ax[1, 2].plot(x_ax, pred_avg[sort_vals], 'rx', alpha=0.5, label='predicted')
+        # ax[1, 2].set_title('Sorted and overlayed measured and predicted values')
+        # ax[1, 2].legend()
 
-        ax[2, 1].plot(x_ax, X_test.data[sort_vals], label="actual")
-        ax[2, 1].fill_between(x_ax, pred_avg[sort_vals] - pred_std[sort_vals],
-                              pred_avg[sort_vals] + pred_std[sort_vals],
-                              alpha=0.5, label="std")
-        ax[2, 1].set_title('predicted stdev. relative to predicted value')
-        ax[2, 1].legend()
+        # ax[2, 0].plot(x_ax, X_test.data[sort_vals], linewidth=4, label="measured")
+        # ax[2, 0].plot(x_ax, pred_std[sort_vals], 'r', label='stdev.')
+        # ax[2, 0].set_title('Sorted and overlayed measured stdev values')
+        # ax[2, 0].legend()
 
-        ax[2, 2].plot(x_ax, X_test.data[sort_vals], label="actual")
-        ax[2, 2].fill_between(x_ax, X_test.data[sort_vals] - pred_std[sort_vals],
-                              X_test.data[sort_vals] + pred_std[sort_vals],
-                              alpha=0.5, label='std')
-        ax[2, 2].set_title('predicted stdev. relative to measured value')
-        ax[2, 2].legend()
+        # ax[2, 1].plot(x_ax, X_test.data[sort_vals], label="actual")
+        # ax[2, 1].fill_between(x_ax, pred_avg[sort_vals] - pred_std[sort_vals],
+        #                       pred_avg[sort_vals] + pred_std[sort_vals],
+        #                       alpha=0.5, label="std")
+        # ax[2, 1].set_title('predicted stdev. relative to predicted value')
+        # ax[2, 1].legend()
 
         fig.tight_layout()
         fig.suptitle('{} - NSAMPLES: {} NUM_LATENT: {} SIDE_NOISE: {} NUM_TRAIN {} BURNIN: {} TEST_RATIO {:.5f}\n Metrics - Corr: {:.5f} - Test RMSE: {:.5f}'. \
