@@ -236,6 +236,9 @@ class Wrapper(BaseEstimator):
                     yticklabels=False, xticklabels=False, square=True)
         ax[1, 0].set_title('Uncertainty (Stdev.)')
 
+        x_ax = np.arange(len(X_test.data))
+        sort_vals = np.argsort(X_test.data)
+
         ax[1, 1].plot(x_ax, X_test.data[sort_vals], label="actual")
         ax[1, 1].fill_between(x_ax, X_test.data[sort_vals] - pred_std[sort_vals],
                               X_test.data[sort_vals] + pred_std[sort_vals],
@@ -245,8 +248,7 @@ class Wrapper(BaseEstimator):
 
 
         ax[2, 0].scatter(X_test.data, pred_avg, edgecolors=(0, 0, 0))
-        ax[2, 0].plot([X_test.data.min(), X_test.data.max()], [pred_avg.min(), pred_avg.max()], 'k--',
-                      lw=4)
+        ax[2, 0].plot([X_test.data.min(), X_test.data.max()], [pred_avg.min(), pred_avg.max()], 'k--',lw=4)
         ax[2, 0].set_xlabel('Measured')
         ax[2, 0].set_ylabel('Predicted')
         ax[2, 0].set_title('Measured vs Avg. Prediction')
@@ -255,9 +257,6 @@ class Wrapper(BaseEstimator):
         ax[2, 1].set_xlabel('Standard Deviation')
         ax[2, 1].set_ylabel('Predicted')
         ax[2, 1].set_title('Stdev. vs Prediction')
-
-        x_ax = np.arange(len(X_test.data))
-        sort_vals = np.argsort(X_test.data)
 
         # ax[1, 2].plot(x_ax, X_test.data[sort_vals], linewidth=4, label="measured")
         # ax[1, 2].plot(x_ax, pred_avg[sort_vals], 'rx', alpha=0.5, label='predicted')
