@@ -18,7 +18,8 @@ class Macau(Wrapper):
                          num_samples=num_samples, verbose=verbose, checkpoint_freq=checkpoint_freq,
                          save_freq=save_freq, save_name=save_name, num_threads=num_threads,
                          report_freq=report_freq,metric_mode=metric_mode,col_side=col_side,
-                         keep_file=keep_file,tol=tol,S_train,S_test,k_metrics,k)
+                         keep_file=keep_file,tol=tol,S_train=S_train,S_test=S_test,
+                         k_metrics=k_metrics,k=k)
 
     def _makeModel(self, train_data, test_data, X_side):
 
@@ -53,7 +54,8 @@ class BPMF(Wrapper):
                          num_samples=num_samples, verbose=verbose, checkpoint_freq=checkpoint_freq,
                          save_freq=save_freq, save_name=save_name, num_threads=num_threads,
                          report_freq=report_freq,metric_mode=metric_mode,col_side=col_side,
-                         keep_file=keep_file,tol=tol,S_train,S_test,k_metrics,k)
+                         keep_file=keep_file,tol=tol,S_train=S_train,S_test=S_test,
+                         k_metrics=k_metrics,k=k)
 
     def _makeModel(self, train_data, test_data, X_side):
 
