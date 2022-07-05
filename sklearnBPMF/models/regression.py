@@ -118,7 +118,7 @@ class BayesianRegression:
                                train_std = trainStd,
                                train_coord = trainCoord,
                                **test_dict,
-                               **train_dict))
+                               **train_dict)
 
     def format_data(self,X,y=None,side=None):
 
