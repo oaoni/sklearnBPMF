@@ -353,6 +353,8 @@ def verify_ndarray(*args):
             datas += [arg.values]
         elif isinstance(arg,np.ndarray):
             datas += [arg]
+        elif scipy.sparse.isspmatrix(arg):
+            datas += [arg.toarray()]
         else:
             datas += [None]
 
