@@ -2,7 +2,7 @@ import smurff
 import copy
 import numpy as np
 import pandas as pd
-from sklearnBPMF.data.utils import add_bias, verify_ndarray,
+from sklearnBPMF.data.utils import add_bias, verify_ndarray
 from sklearnBPMF.core.metrics import score_completion
 
 class BayesianRegression:
