@@ -24,7 +24,7 @@ class BayesianRegression:
         self.X_train = X
         self.y = y
         self.X_test = X_test
-        
+
         X,y = self.format_data(X,y=y,side=side)
 
         # Initial prediction of the weight posterior mean and covariance
@@ -71,7 +71,7 @@ class BayesianRegression:
 
     def format_data(self,X,y=None,side=None):
 
-        if y == None:
+        if y is None:
             y = copy.copy(X)
 
         X,y,side = verify_ndarray(X,y,side)
