@@ -11,7 +11,6 @@ from scipy.sparse import coo_matrix
 from scipy.cluster.hierarchy import linkage, dendrogram
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
-from sklearnBPMF.core.metrics import reciprocal_rank, average_precision, average_recall, discounted_gain, normalized_gain
 
 import os
 import tempfile
@@ -363,6 +362,24 @@ def verify_ndarray(*args):
 
     return datas
 
+def verify_pdframe(*args):
+
+    datas = []
+    for arg in args:
+        if isinstance(arg, pd.DataFrame):
+            datas += [arg]
+        elif isinstance(arg,np.ndarray):
+            datas += [pd.DataFrame(arg)]
+        elif scipy.sparse.isspmatrix(arg):
+            datas += [pd.DataFrame(arg.toarray())]
+        else:
+            datas += [None]
+
+    if len(datas) == 1:
+        datas = datas[0]
+
+    return datas
+
 def scaled_interval(start,stop,num,scale,base=10,dtype=float):
 
     space_kwargs = {'dtype':dtype}
@@ -375,37 +392,3 @@ def scaled_interval(start,stop,num,scale,base=10,dtype=float):
     interval_space = np.round(Space(start=start,stop=stop,num=num,**space_kwargs),4).tolist()
 
     return interval_space
-
-def score_completion(X, X_pred, S_test, name, k_metrics=False, k=20):
-    ''''Produce training, testing, and validation scoring metrics (rmse, corr(pearson,), frobenius, relative error)'''
-
-    bool_mask = S_test == 1
-    Xhat = X_pred
-
-    predicted = Xhat[bool_mask].stack()
-    measured = X[bool_mask].stack()
-
-    error = predicted - measured
-
-    frob = np.linalg.norm(Xhat - X, 'fro')
-    rel_frob = frob/(np.linalg.norm(X, 'fro'))
-    rmse = np.sqrt(np.mean((error**2)))
-    rel_rmse = rmse/(np.sqrt(np.mean((measured**2))))
-    spearman = predicted.corr(measured, method='spearman')
-    pearson = predicted.corr(measured, method='pearson')
-
-    metric_dict = {'{}_frob'.format(name):frob, '{}_rel_frob'.format(name):rel_frob, '{}_rmse'.format(name):rmse,
-    '{}_rel_rmse'.format(name):rel_rmse, '{}_spearman'.format(name):spearman, '{}_pearson'.format(name):pearson}
-
-    if k_metrics:
-        reciprocal_r = reciprocal_rank(Xhat, X, k)[0]
-        mean_precision = average_precision(Xhat, X, k)[0]
-        mean_recall = average_recall(Xhat, X, k)[0]
-        ndcg = normalized_gain(Xhat, X, k)[0]
-
-        metric_dict['{}_reciprocal_r'.format(name)] = reciprocal_r
-        metric_dict['{}_mean_precision'.format(name)] = mean_precision
-        metric_dict['{}_mean_recall'.format(name)] = mean_recall
-        metric_dict['{}_ndcg'.format(name)] = ndcg
-
-    return metric_dict

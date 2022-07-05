@@ -4,6 +4,7 @@ from scipy.stats import entropy
 from scipy.linalg import svd
 from sklearn.metrics.pairwise import pairwise_kernels
 from scipy.spatial.distance import cdist
+from sklearnBPMF.data.utils import verify_pdframe
 
 def corr_metric(predicted, measured):
     corr = np.corrcoef(predicted, measured)
@@ -219,3 +220,47 @@ def normalized_gain(pred_M,true_M,k):
     mean_ndcg = mean_dcg / ideal_cumulative_gain.mean()
 
     return mean_ndcg, normalized_cg
+
+def score_rank(X,Xhat,k):
+    """Compute @k ranking metrics"""
+
+    reciprocal_r = reciprocal_rank(Xhat, X, k)[0]
+    mean_precision = average_precision(Xhat, X, k)[0]
+    mean_recall = average_recall(Xhat, X, k)[0]
+    ndcg = normalized_gain(Xhat, X, k)[0]
+
+    return reciprocal_r, mean_precision, mean_recall, ndcg
+
+def score_completion(X, X_pred, S_test, name, k_metrics=False, k=20):
+    ''''Produce scoring metrics (rmse, corr(pearson,), frobenius, relative error)'''
+
+    X, X_pred, S_test = verify_pdframe(X, X_pred, S_test)
+
+    bool_mask = S_test == 1
+    Xhat = X_pred.set_axis(self.X.index,axis=0).set_axis(self.X.index,axis=1)
+
+    predicted = Xhat[bool_mask].stack()
+    measured = X[bool_mask].stack()
+
+    error = predicted - measured
+
+    frob = np.linalg.norm(Xhat - X, 'fro')
+    rel_frob = frob/(np.linalg.norm(X, 'fro'))
+    rmse = np.sqrt(np.mean((error**2)))
+    rel_rmse = rmse/(np.sqrt(np.mean((measured**2))))
+    spearman = predicted.corr(measured, method='spearman')
+    pearson = predicted.corr(measured, method='pearson')
+
+    metric_dict = {'{}_frob'.format(name):frob, '{}_rel_frob'.format(name):rel_frob, '{}_rmse'.format(name):rmse,
+    '{}_rel_rmse'.format(name):rel_rmse, '{}_spearman'.format(name):spearman, '{}_pearson'.format(name):pearson}
+
+    if k_metrics:
+
+        reciprocal_r, mean_precision, mean_recall, ndcg = score_rank(X,Xhat,k)
+
+        metric_dict['{}_reciprocal_r'.format(name)] = reciprocal_r
+        metric_dict['{}_mean_precision'.format(name)] = mean_precision
+        metric_dict['{}_mean_recall'.format(name)] = mean_recall
+        metric_dict['{}_ndcg'.format(name)] = ndcg
+
+    return metric_dict

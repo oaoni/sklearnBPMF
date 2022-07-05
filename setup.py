@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name='sklearnBPMF',
-    version='0.0.3',
+    version='0.0.4',
     author='Ola Oni',
     author_email='oa.oni7@gmail.com',
     description='Sklearn wrapper for Bayesian Probabilistic Matrix Completion with Macau, Smurff, and Bayesian Regression',

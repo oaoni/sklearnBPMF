@@ -9,11 +9,8 @@ from sklearn.base import BaseEstimator
 from scipy.cluster.hierarchy import linkage, dendrogram
 from scipy.sparse import coo_matrix
 
-from sklearnBPMF.core import corr_metric, distance_metric
-from sklearnBPMF.core.metrics import item_rank, relevance_score, reciprocal_rank, average_precision, average_recall, discounted_gain, normalized_gain
-
 from sklearnBPMF.data.utils import to_sparse
-
+from sklearnBPMF.core.metrics import corr_metric, score_completion, score_rank
 
 class Wrapper(BaseEstimator):
     """Scikit learn wrapper for matrix completion models."""
@@ -21,7 +18,7 @@ class Wrapper(BaseEstimator):
     def __init__(self,num_latent, burnin, num_samples,
                  verbose, checkpoint_freq, save_freq, save_name,
                  num_threads, report_freq, metric_mode, col_side,
-                 keep_file, tol):
+                 keep_file, tol, S_train, S_test, k_metrics, k):
 
         self.num_latent = num_latent
         self.burnin = burnin
@@ -36,6 +33,10 @@ class Wrapper(BaseEstimator):
         self.col_side = col_side
         self.keep_file = keep_file
         self.tol = tol
+        self.S_train = S_train
+        self.S_test = S_test
+        self.k_metrics = k_metrics
+        self.k = k
 
         self.train_rmse = None
         self.test_corr = None
@@ -57,9 +58,19 @@ class Wrapper(BaseEstimator):
         if self.metric_mode > 0:
             #Store training set predictions
             trainAvg, trainStd, trainCoord = self.predictTrain(return_std=True)
+
+            data = trainAvg
+            row_,col_ = list(zip(*trainCoord))
+            X_pred = coo_matrix((data, (row_, col_)))
+            X_pred = pd.DataFrame(X_pred.toarray())
+            X_true = pd.DataFrame(self.X_train.toarray())
+
+            train_dict = score_completion(X_true, X_pred, self.S_train, 'train', k_metrics=self.k_metrics, k=self.k)
+
             self.train_dict['train_avg'] = trainAvg
             self.train_dict['train_std'] = trainStd
             self.train_dict['train_coord'] = trainCoord
+            self.train_dict.update(train_dict)
 
         if (verbose) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
             print('Final test correlation is: {}'.format(self.train_dict['test_corr']))
@@ -128,7 +139,6 @@ class Wrapper(BaseEstimator):
         else: # High memory mode
             # Get test predictions
             predAvg, predStd, predCoord = self.predict(return_std=True)
-            testCorr = corr_metric(predAvg, self.X_test.data)
 
             data = predAvg
             row_,col_ = list(zip(*predCoord))
@@ -136,25 +146,17 @@ class Wrapper(BaseEstimator):
             X_pred = pd.DataFrame(X_pred.toarray())
             X_true = pd.DataFrame(self.X_test.toarray())
 
-            # @k metrics
-            rr = reciprocal_rank(X_pred, X_true, 50)[0]
-            ap = average_precision(X_pred, X_true, 50)[0]
-            ar = average_recall(X_pred, X_true, 50)[0]
-            ndcg = normalized_gain(X_pred, X_true, 50)[0]
+            test_dict = score_completion(X_true, X_pred, self.S_test, 'test', k_metrics=self.k_metrics, k=self.k)
 
             #Assign current training metrics
             self.train_dict = dict(sample_iter = sample_iter,
-                                   test_corr = testCorr,
                                    train_rmse = macauStatus.train_rmse,
                                    rmse_avg = macauStatus.rmse_avg,
                                    rmse_lsample = macauStatus.rmse_1sample,
-                                   reciprocal_r = rr,
-                                   mean_precision = ap,
-                                   mean_recall = ar,
-                                   ndcg = ndcg,
                                    pred_avg = predAvg,
                                    pred_std = predStd,
-                                   pred_coord = predCoord)
+                                   pred_coord = predCoord,
+                                   **test_dict)
 
     def predict(self, return_std=False):
         # Return predicted unobserved values, does not require test data,
@@ -222,7 +224,7 @@ class Wrapper(BaseEstimator):
         pred_clust = (test_sparse + train_sparse)[:,clust_index][clust_index,:].toarray()
         std_clust = (test_std_sparse + train_std_sparse)[:,clust_index][clust_index,:].toarray()
 
-        fig, ax = plt.subplots(3, 2, figsize=(20, 20))
+        fig, ax = plt.subplots(3, 2, figsize=(14, 15))
 
         sns.heatmap(M_clust,robust=True,ax=ax[0,0], square=True,
                     yticklabels=False, xticklabels=False)
