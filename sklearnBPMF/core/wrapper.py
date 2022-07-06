@@ -73,7 +73,7 @@ class Wrapper(BaseEstimator):
             self.train_dict.update(train_dict)
 
         if (verbose) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
-            print('Final test correlation is: {}'.format(self.train_dict['test_corr']))
+            print('Final test correlation is: {}'.format(self.train_dict['test_pearson']))
 
         if (make_plot) and ((self.metric_mode == 1) or (self.metric_mode == 2)):
             self._makePlots(self.train_dict, X_train, X_test, complete_matrix=complete_matrix, **plot_kwargs)
@@ -196,7 +196,7 @@ class Wrapper(BaseEstimator):
 
         pred_avg = np.array(train_dict['pred_avg'])
         pred_std = np.array(train_dict['pred_std'])
-        test_corr = train_dict['test_corr']
+        test_corr = train_dict['test_pearson']
         rmse_avg = train_dict['rmse_avg']
         pred_coord = train_dict['pred_coord']
         train_avg = np.array(train_dict['train_avg'])
