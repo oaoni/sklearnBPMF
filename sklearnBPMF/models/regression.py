@@ -39,7 +39,7 @@ class BayesianRegression:
         self.cov_, self.mu_ = self.weight_posterior(X,y,self.alpha,self.sigma)
 
         # Compute uncertainty
-        self.uncertainty = compute_variance(X)
+        self.uncertainty = self.compute_variance(X)
 
         # Store performance metrics
         self.store_metrics(X)
@@ -68,9 +68,10 @@ class BayesianRegression:
                 print("Convergence after ", str(i), " iterations")
                 break
 
-    def compute_variance(X):
+    def compute_variance(self, X):
 
         variance = ((X @ self.cov_) @ (X.T)) + self.sigma
+        
         return pd.DataFrame(variance + variance.T)
 
 
