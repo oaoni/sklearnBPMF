@@ -61,7 +61,7 @@ class Wrapper(BaseEstimator):
 
             data = trainAvg
             row_,col_ = list(zip(*trainCoord))
-            X_pred = coo_matrix((data, (row_, col_)))
+            X_pred = coo_matrix((data, (row_, col_)),shape=self.X_train.shape)
             X_pred = pd.DataFrame(X_pred.toarray())
             X_true = pd.DataFrame(self.X_train.toarray())
 
