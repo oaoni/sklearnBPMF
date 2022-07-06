@@ -112,12 +112,12 @@ class BayesianRegression:
         train_std = list(self.uncertainty.stack()[train_coord].values.astype(np.float32))
 
         #Assign current training metrics
-        self.train_dict = dict(pred_avg = predAvg,
-                               pred_std = predStd,
-                               pred_coord = predCoord,
-                               train_avg = trainAvg,
-                               train_std = trainStd,
-                               train_coord = trainCoord,
+        self.train_dict = dict(pred_avg = pred_avg,
+                               pred_std = pred_std,
+                               pred_coord = pred_coord,
+                               train_avg = train_avg,
+                               train_std = train_std,
+                               train_coord = train_coord,
                                **test_dict,
                                **train_dict)
 
