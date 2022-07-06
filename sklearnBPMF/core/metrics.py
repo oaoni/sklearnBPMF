@@ -256,7 +256,7 @@ def score_completion(X, X_pred, S_test, name, k_metrics=False, k=20):
 
     if k_metrics:
 
-        reciprocal_r, mean_precision, mean_recall, ndcg = score_rank(X,Xhat,k)
+        reciprocal_r, mean_precision, mean_recall, ndcg = score_rank(X*S_test.values,Xhat*S_test.values,k)
 
         metric_dict['{}_reciprocal_r'.format(name)] = reciprocal_r
         metric_dict['{}_mean_precision'.format(name)] = mean_precision
