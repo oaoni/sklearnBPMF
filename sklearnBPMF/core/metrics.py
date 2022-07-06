@@ -236,8 +236,8 @@ def score_completion(X, X_pred, S_test, name, k_metrics=False, k=20):
 
     X, X_pred, S_test = verify_pdframe(X, X_pred, S_test)
 
-    bool_mask = S_test == 1
-    Xhat = X_pred.set_axis(X.index,axis=0).set_axis(X.index,axis=1)
+    bool_mask = S_test.set_axis(X.index,axis=0).set_axis(X.columns,axis=1) == 1
+    Xhat = X_pred.set_axis(X.index,axis=0).set_axis(X.columns,axis=1)
 
     predicted = Xhat[bool_mask].stack()
     measured = X[bool_mask].stack()

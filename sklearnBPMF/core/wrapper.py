@@ -82,8 +82,6 @@ class Wrapper(BaseEstimator):
             print('Deleting temporary save file: {}'.format(self.save_name))
             os.remove(self.save_name)
 
-        return self
-
     def addData(self, X_train, X_test, X_side):
 
         self._makeSession()
@@ -224,7 +222,7 @@ class Wrapper(BaseEstimator):
         pred_clust = (test_sparse + train_sparse)[:,clust_index][clust_index,:].toarray()
         std_clust = (test_std_sparse + train_std_sparse)[:,clust_index][clust_index,:].toarray()
 
-        fig, ax = plt.subplots(3, 2, figsize=(14, 15))
+        fig, ax = plt.subplots(3, 2, figsize=(12, 14))
 
         sns.heatmap(M_clust,robust=True,ax=ax[0,0], square=True,
                     yticklabels=False, xticklabels=False)
@@ -258,7 +256,7 @@ class Wrapper(BaseEstimator):
         ax[2, 1].fill_between(x_ax, X_test.data[sort_vals] - pred_std[sort_vals],
                               X_test.data[sort_vals] + pred_std[sort_vals],
                               alpha=0.5, label='std')
-        ax[2, 1].set_title('predicted stdev. relative to measured value')
+        ax[2, 1].set_title('Predicted stdev. relative to measured value')
         ax[2, 1].set_aspect(1/ax[2,1].get_data_ratio(), adjustable='box')
         ax[2, 1].legend()
 
