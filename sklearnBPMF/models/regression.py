@@ -42,7 +42,7 @@ class BayesianRegression:
         self.uncertainty = self.compute_variance(X)
 
         # Store performance metrics
-        self.store_metrics(X)
+        self.store_metrics(self.X_train)
 
         for i in range(self.max_iters):
                 # Compute the log likelihood
@@ -59,7 +59,7 @@ class BayesianRegression:
             self.uncertainty = compute_variance(X)
 
             # Store performance metrics
-            self.store_metrics(X)
+            self.store_metrics(self.X_train)
 
             # Check for convergence
         #     converg = sum(abs(alpha_old - alpha_))
@@ -71,7 +71,7 @@ class BayesianRegression:
     def compute_variance(self, X):
 
         variance = ((X @ self.cov_) @ (X.T)) + self.sigma
-        
+
         return pd.DataFrame(variance + variance.T)
 
 
