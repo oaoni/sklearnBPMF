@@ -27,7 +27,7 @@ class BayesianRegression:
         self.S_train = S_train
         self.S_test = S_test
 
-    def fit(self,X,y,side=None,X_test=None):
+    def fit(self,X,y=None,side=None,X_test=None):
 
         self.X_train = X
         self.y = y
