@@ -95,9 +95,14 @@ class BayesianRegression:
 
         return pd.DataFrame(y_pred)
 
-    def predict(self,Xhat=self.Xhat,S=self.S_test,return_std=False):
+    def predict(self,S='test',return_std=False):
 
-        pred = (Xhat * S.replace(0,np.nan).values).stack()
+        if S == 'test':
+            S = self.S_test
+        elif S == 'train':
+            S = self.S_train
+
+        pred = (self.Xhat * S.replace(0,np.nan).values).stack()
         avg = list(pred.values.astype(np.float32))
         coord = list(pred.index.values)
         std = list(self.uncertainty.stack()[coord].values.astype(np.float32))
@@ -114,7 +119,7 @@ class BayesianRegression:
         train_dict = score_completion(self.M,self.Xhat,self.S_train,'train',k_metrics=self.k_metrics,k=self.k)
 
         pred_avg, pred_std, pred_coord = self.predict(return_std=True)
-        train_avg, pred_std, pred_coord = self.predict(S=self.S_train,return_std=True)
+        train_avg, pred_std, pred_coord = self.predictTrain(S='train',return_std=True)
 
         #Assign current training metrics
         self.train_dict = dict(pred_avg = pred_avg,
