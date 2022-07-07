@@ -68,6 +68,8 @@ class BayesianRegression:
                 print("Convergence after ", str(i), " iterations")
                 break
 
+        self.Xhat = self.transform(X)
+
     def compute_variance(self, X):
 
         variance = ((X @ self.cov_) @ (X.T)) + self.sigma
@@ -91,9 +93,9 @@ class BayesianRegression:
 
         y_pred = y_star + y_star.T
 
-        return y_pred
+        return pd.DataFrame(y_pred)
 
-    def predict(self,Xhat,S,return_std=False):
+    def predict(self,Xhat=self.Xhat,S=self.S_test,return_std=False):
 
         pred = (Xhat * S.replace(0,np.nan).values).stack()
         avg = list(pred.values.astype(np.float32))
@@ -108,14 +110,11 @@ class BayesianRegression:
 
     def store_metrics(self,X):
 
-        Xhat = self.transform(X)
-        Xhat = pd.DataFrame(Xhat)
+        test_dict = score_completion(self.M,self.Xhat,self.S_test,'test',k_metrics=self.k_metrics,k=self.k)
+        train_dict = score_completion(self.M,self.Xhat,self.S_train,'train',k_metrics=self.k_metrics,k=self.k)
 
-        test_dict = score_completion(self.M,Xhat,self.S_test,'test',k_metrics=self.k_metrics,k=self.k)
-        train_dict = score_completion(self.M,Xhat,self.S_train,'train',k_metrics=self.k_metrics,k=self.k)
-
-        pred_avg, pred_std, pred_coord = self.predict(Xhat,self.S_test,return_std=True)
-        train_avg, train_std, train_coord = self.predict(Xhat,self.S_train,return_std=True)
+        pred_avg, pred_std, pred_coord = self.predict(return_std=True)
+        train_avg, pred_std, pred_coord = self.predict(S=self.S_train,return_std=True)
 
         #Assign current training metrics
         self.train_dict = dict(pred_avg = pred_avg,
