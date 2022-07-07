@@ -68,8 +68,6 @@ class BayesianRegression:
                 print("Convergence after ", str(i), " iterations")
                 break
 
-        self.Xhat = self.transform(X)
-
     def compute_variance(self, X):
 
         variance = ((X @ self.cov_) @ (X.T)) + self.sigma
@@ -114,6 +112,8 @@ class BayesianRegression:
 
 
     def store_metrics(self,X):
+
+        self.Xhat = self.transform(X)
 
         test_dict = score_completion(self.M,self.Xhat,self.S_test,'test',k_metrics=self.k_metrics,k=self.k)
         train_dict = score_completion(self.M,self.Xhat,self.S_train,'train',k_metrics=self.k_metrics,k=self.k)
