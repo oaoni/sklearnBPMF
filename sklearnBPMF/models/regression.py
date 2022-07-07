@@ -93,6 +93,19 @@ class BayesianRegression:
 
         return y_pred
 
+    def predict(self,Xhat,S,return_std=False):
+
+        pred = (Xhat * S.replace(0,np.nan).values).stack()
+        avg = list(pred.values.astype(np.float32))
+        coord = list(pred.index.values)
+        std = list(self.uncertainty.stack()[coord].values.astype(np.float32))
+
+        if return_std:
+            return avg, std, coord
+        else:
+            return avg, coord
+
+
     def store_metrics(self,X):
 
         Xhat = self.transform(X)
@@ -101,15 +114,8 @@ class BayesianRegression:
         test_dict = score_completion(self.M,Xhat,self.S_test,'test',k_metrics=self.k_metrics,k=self.k)
         train_dict = score_completion(self.M,Xhat,self.S_train,'train',k_metrics=self.k_metrics,k=self.k)
 
-        pred = (Xhat * self.S_test.replace(0,np.nan).values).stack()
-        pred_avg = list(pred.values.astype(np.float32))
-        pred_coord = list(pred.index.values)
-        pred_std = list(self.uncertainty.stack()[pred_coord].values.astype(np.float32))
-
-        train = (Xhat * self.S_train.replace(0,np.nan).values).stack()
-        train_avg = list(train.values.astype(np.float32))
-        train_coord = list(train.index.values)
-        train_std = list(self.uncertainty.stack()[train_coord].values.astype(np.float32))
+        pred_avg, pred_std, pred_coord = self.predict(Xhat,self.S_test,return_std=True)
+        train_avg, train_std, train_coord = self.predict(Xhat,self.S_train,return_std=True)
 
         #Assign current training metrics
         self.train_dict = dict(pred_avg = pred_avg,
