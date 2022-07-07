@@ -119,7 +119,7 @@ class BayesianRegression:
         train_dict = score_completion(self.M,self.Xhat,self.S_train,'train',k_metrics=self.k_metrics,k=self.k)
 
         pred_avg, pred_std, pred_coord = self.predict(return_std=True)
-        train_avg, pred_std, pred_coord = self.predict(S='train',return_std=True)
+        train_avg, train_std, train_coord = self.predict(S='train',return_std=True)
 
         #Assign current training metrics
         self.train_dict = dict(pred_avg = pred_avg,
