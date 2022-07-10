@@ -29,13 +29,16 @@ class BayesianRegression:
 
     def fit(self,X,y=None,side=None,X_test=None):
 
+        #Store training and evaluation data
         self.X_train = X
         self.X_test = X_test
         self.y = y
 
+        # Produce masks
         self.S_train = verify_pdframe((X != 0)*1)
         self.S_test = verify_pdframe((X_test != 0)*1)
 
+        # Format data for training
         X,y = self.format_data(X,y=y,side=side)
 
         # Initial prediction of the weight posterior mean and covariance

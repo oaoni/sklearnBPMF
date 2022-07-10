@@ -9,7 +9,7 @@ from sklearn.base import BaseEstimator
 from scipy.cluster.hierarchy import linkage, dendrogram
 from scipy.sparse import coo_matrix
 
-from sklearnBPMF.data.utils import to_sparse
+from sklearnBPMF.data.utils import to_sparse, verify_pdframe
 from sklearnBPMF.core.metrics import corr_metric, score_completion, score_rank
 
 class Wrapper(BaseEstimator):
@@ -18,7 +18,7 @@ class Wrapper(BaseEstimator):
     def __init__(self,num_latent, burnin, num_samples,
                  verbose, checkpoint_freq, save_freq, save_name,
                  num_threads, report_freq, metric_mode, col_side,
-                 keep_file, tol, S_train, S_test, k_metrics, k):
+                 keep_file, tol, k_metrics, k):
 
         self.num_latent = num_latent
         self.burnin = burnin
@@ -33,22 +33,20 @@ class Wrapper(BaseEstimator):
         self.col_side = col_side
         self.keep_file = keep_file
         self.tol = tol
-        self.S_train = S_train
-        self.S_test = S_test
         self.k_metrics = k_metrics
         self.k = k
+        self.status = 'init'
 
         self.train_rmse = None
         self.test_corr = None
         self.sample_iter = None
         self.train_dict = None
-        self.rmse_old = np.Inf
-        self.rmse  = np.Inf
-        self.status = 'init'
 
     def fit(self, X_train, X_test, X_side, verbose=False, make_plot=True, complete_matrix=None, **plot_kwargs):
         # Initialize the training session method
         self.addData(X_train, X_test, X_side)
+        self.rmse_old = np.Inf
+        self.rmse  = np.Inf
 
         # Train the model with the observed data
         self.status = 'running'
@@ -90,6 +88,10 @@ class Wrapper(BaseEstimator):
 
         self.X_train = X_train
         self.X_test = X_test
+
+        # Produce masks
+        self.S_train = verify_pdframe((X_train != 0)*1)
+        self.S_test = verify_pdframe((X_test != 0)*1)
 
     def train_step(self):
 
