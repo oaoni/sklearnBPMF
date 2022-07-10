@@ -2,12 +2,12 @@ import smurff
 import copy
 import numpy as np
 import pandas as pd
-from sklearnBPMF.data.utils import add_bias, verify_ndarray
+from sklearnBPMF.data.utils import add_bias, verify_ndarray, verify_pdframe
 from sklearnBPMF.core.metrics import score_completion
 
 class BayesianRegression:
     def __init__(self,alpha_init,sigma_init,model='collective',tol=1e-3,max_iters=0,bias=True,
-                 bias_both_dim=False,M=None,S_train=None,S_test=None,k_metrics=True,k=20):
+                 bias_both_dim=False,M=None,k_metrics=True,k=20):
 
         self.alpha = alpha_init
         self.sigma = sigma_init
@@ -24,14 +24,17 @@ class BayesianRegression:
         self.side = None
 
         self.M = M
-        self.S_train = S_train
-        self.S_test = S_test
+        self.S_train = None
+        self.S_test = None
 
     def fit(self,X,y=None,side=None,X_test=None):
 
         self.X_train = X
-        self.y = y
         self.X_test = X_test
+        self.y = y
+
+        self.S_train = verify_pdframe((X != 0)*1)
+        self.S_test = verify_pdframe((X_test != 0)*1)
 
         X,y = self.format_data(X,y=y,side=side)
 
@@ -106,6 +109,7 @@ class BayesianRegression:
             S = self.S_test
         elif S == 'train':
             S = self.S_train
+
 
         pred = (self.Xhat * S.replace(0,np.nan).values).stack()
         avg = list(pred.values.astype(np.float32))
