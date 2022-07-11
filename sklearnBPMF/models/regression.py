@@ -149,6 +149,7 @@ class BayesianRegression:
 
         if y is None:
             y = copy.copy(X)
+            self.y = y
 
         X,y,side = verify_ndarray(X,y,side)
 
@@ -166,7 +167,8 @@ class BayesianRegression:
                 y = add_bias(y,both_dims=self.bias_both_dim)
 
         # Format alpha initilization as a diagonal matrix
-        self.alpha = np.diag(self.alpha*np.ones(X.shape[1]))
+        if not isinstance(self.alpha,np.ndarray):
+            self.alpha = np.diag(self.alpha*np.ones(X.shape[1]))
 
         return X,y
 
