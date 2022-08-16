@@ -133,6 +133,8 @@ class BayesianRegression:
         train_avg, train_std, train_coord = self.predict(S='train',return_std=True)
 
         #Assign current training metrics
+        self.train_scores = train_dict
+        self.test_scores = test_dict
         self.train_dict = dict(pred_avg = pred_avg,
                                pred_std = pred_std,
                                pred_coord = pred_coord,
