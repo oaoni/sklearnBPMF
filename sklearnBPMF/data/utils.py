@@ -305,10 +305,16 @@ def smurff_normalize(M, M_train, M_test):
     test_centered = coo_matrix(M_test)
     test_centered.data -= global_mean # only touch non-zeros
     test_centered.data /= global_std
+    all_centered = coo_matrix(M)
+    all_centered.data -= global_mean # only touch non-zeros
+    all_centered.data /= global_std
+    # all_centered = coo_matrix((M - global_mean)/global_std)
 
-    all_centered = coo_matrix((M - global_mean)/global_std)
+    M = pd.DataFrame(all_centered.toarray(),index=M.index,columns=M.columns)
+    M_train = pd.DataFrame(train_centered.toarray(),index=M.index,columns=M.columns)
+    M_test = pd.DataFrame(test_centered.toarray(),index=M.index,columns=M.columns)
 
-    return train_centered, test_centered, all_centered
+    return (train_centered, test_centered, all_centered), (M_train, M_test, M)
 
 def to_sparse(data, inds, shape):
 
