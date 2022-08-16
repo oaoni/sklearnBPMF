@@ -79,11 +79,8 @@ class BayesianRegression:
         variance = ((X @ self.cov_) @ (X.T)) + self.sigma
 
         # Format bias and perform transformation
-        if self.bias:
-            if self.bias_both_dim:
-                variance = variance[1:,1:]
-            else:
-                variance = variance[:,1:]
+        if self.bias_both_dim:
+            variance = variance[1:,1:]
 
         return pd.DataFrame(variance + variance.T)
 
