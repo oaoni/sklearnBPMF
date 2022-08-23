@@ -312,7 +312,7 @@ def smurff_normalize(M, M_train, M_test):
 
 def to_sparse(data, inds, shape):
 
-    row, col = list(zip(*inds))
+    row, col = list(zip(*inds)) # Evaluate issues with speed
     data_sparse = coo_matrix((data, (row, col)), shape=shape)
 
     return data_sparse

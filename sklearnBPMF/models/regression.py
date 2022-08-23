@@ -131,6 +131,8 @@ class BayesianRegression:
 
         test_dict = score_completion(self.M,self.Xhat,self.S_test,'test',k_metrics=self.k_metrics,k=self.k)
         train_dict = score_completion(self.M,self.Xhat,self.S_train,'train',k_metrics=self.k_metrics,k=self.k)
+        cond_number = np.linalg.cond(verify_ndarray(X) + np.eye(X.shape[0]))
+        cond_number_mask = np.linalg.cond(self.S_train + np.eye(X.shape[0]))
 
         pred_avg, pred_std, pred_coord = self.predict(return_std=True)
         train_avg, train_std, train_coord = self.predict(S='train',return_std=True)
@@ -142,6 +144,8 @@ class BayesianRegression:
                                train_avg = train_avg,
                                train_std = train_std,
                                train_coord = train_coord,
+                               cond_number = cond_number,
+                               cond_number_mask = cond_number_mask,
                                **test_dict,
                                **train_dict)
 
