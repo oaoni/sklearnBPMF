@@ -82,7 +82,9 @@ class BayesianRegression:
         if self.bias_both_dim:
             variance = variance[1:,1:]
 
-        return pd.DataFrame(variance + variance.T)
+        uncertainty = ((variance + variance.T) - variance.min()) / (variance.max() - variance.min())
+
+        return pd.DataFrame(uncertainty)
 
 
     def transform(self,X):
