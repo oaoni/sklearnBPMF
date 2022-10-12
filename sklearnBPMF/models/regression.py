@@ -7,7 +7,7 @@ from sklearnBPMF.core.metrics import score_completion
 
 class BayesianRegression:
     def __init__(self,alpha_init,sigma_init,model='collective',tol=1e-3,max_iters=0,bias=True,
-                 bias_both_dim=False,M=None,k_metrics=True,k=20):
+                 bias_both_dim=False,M=None,k_metrics=True,k=20,transpose_variance=True):
 
         self.alpha = alpha_init
         self.sigma = sigma_init
@@ -18,6 +18,7 @@ class BayesianRegression:
         self.bias_both_dim = bias_both_dim
         self.k_metrics = k_metrics
         self.k = k
+        self.transpose_variance = transpose_variance
 
         self.cov_ = None
         self.mu_ = None
@@ -45,7 +46,7 @@ class BayesianRegression:
         self.cov_, self.mu_ = self.weight_posterior(X,y,self.alpha,self.sigma)
 
         # Compute uncertainty
-        self.uncertainty = self.compute_variance(X)
+        self.uncertainty = self.compute_variance(X,transpose=self.transpose_variance)
 
         # Store performance metrics
         self.store_metrics(self.X_train)
@@ -62,7 +63,7 @@ class BayesianRegression:
             self.cov_, self.mu_ = self.weight_posterior(X,y,self.alpha,self.sigma)
 
             # Compute uncertainty
-            self.uncertainty = compute_variance(X)
+            self.uncertainty = compute_variance(X,transpose=self.transpose_variance)
 
             # Store performance metrics
             self.store_metrics(self.X_train)
@@ -74,7 +75,7 @@ class BayesianRegression:
                 print("Convergence after ", str(i), " iterations")
                 break
 
-    def compute_variance(self, X):
+    def compute_variance(self, X, transpose=True):
 
         variance = ((X @ self.cov_) @ (X.T)) + self.sigma
 
@@ -82,7 +83,10 @@ class BayesianRegression:
         if self.bias_both_dim:
             variance = variance[1:,1:]
 
-        uncertainty = ((variance + variance.T) - variance.min()) / (variance.max() - variance.min())
+        if transpose:
+            variance += variance.T
+
+        uncertainty = (variance - variance.min()) / (variance.max() - variance.min())
 
         return pd.DataFrame(uncertainty)
 
