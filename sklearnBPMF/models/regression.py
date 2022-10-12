@@ -7,7 +7,7 @@ from sklearnBPMF.core.metrics import score_completion
 
 class BayesianRegression:
     def __init__(self,alpha_init,sigma_init,model='collective',tol=1e-3,max_iters=0,bias=True,
-                 bias_both_dim=False,M=None,k_metrics=True,k=20,transpose_variance=True):
+                 bias_both_dim=False,k_metrics=True,k=20,transpose_variance=True):
 
         self.alpha = alpha_init
         self.sigma = sigma_init
@@ -23,24 +23,23 @@ class BayesianRegression:
         self.cov_ = None
         self.mu_ = None
         self.side = None
-
-        self.M = M
         self.S_train = None
         self.S_test = None
 
-    def fit(self,X,y=None,side=None,X_test=None):
+    def fit(self,X_train,X_side=None,X_test=None,y=None,M=None):
 
         #Store training and evaluation data
-        self.X_train = X
+        self.X_train = X_train
         self.X_test = X_test
         self.y = y
+        self.M = M
 
         # Produce masks
-        self.S_train = verify_pdframe((X != 0)*1)
+        self.S_train = verify_pdframe((X_train != 0)*1)
         self.S_test = verify_pdframe((X_test != 0)*1)
 
         # Format data for training
-        X,y = self.format_data(X,y=y,side=side)
+        X,y = self.format_data(X_train,y=y,side=X_side)
 
         # Initial prediction of the weight posterior mean and covariance
         self.cov_, self.mu_ = self.weight_posterior(X,y,self.alpha,self.sigma)
