@@ -247,7 +247,8 @@ def score_completion(X, X_pred, S_test, name, k_metrics=False, k=20):
     frob = np.linalg.norm(Xhat*S_test.values - X*S_test.values, 'fro')
     rel_frob = frob/(np.linalg.norm(X*S_test.values, 'fro'))
     rmse = np.sqrt(np.mean((error**2)))
-    rel_rmse = rmse/(np.sqrt(np.mean((measured**2))))
+    # rel_rmse = rmse/(np.sqrt(np.mean((measured**2))))
+    rel_rmse = rmse/sum((measured.values-measured.values.mean())**2)
     spearman = predicted.corr(measured, method='spearman')
     pearson = predicted.corr(measured, method='pearson')
 

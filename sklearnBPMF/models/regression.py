@@ -131,8 +131,8 @@ class BayesianRegression:
 
         self.Xhat = self.transform(X)
 
-        test_dict = score_completion(self.M,self.Xhat,self.S_test,'test',k_metrics=self.k_metrics,k=self.k)
-        train_dict = score_completion(self.M,self.Xhat,self.S_train,'train',k_metrics=self.k_metrics,k=self.k)
+        test_scores = score_completion(self.M,self.Xhat,self.S_test,'test',k_metrics=self.k_metrics,k=self.k)
+        train_scores = score_completion(self.M,self.Xhat,self.S_train,'train',k_metrics=self.k_metrics,k=self.k)
         cond_number = np.linalg.cond(verify_ndarray(X) + np.eye(X.shape[0]))
         cond_number_mask = np.linalg.cond(self.S_train + np.eye(X.shape[0]))
 
@@ -140,8 +140,8 @@ class BayesianRegression:
         train_avg, train_std, train_coord = self.predict(S='train',return_std=True)
 
         #Assign current training metrics
-        self.train_scores = train_dict
-        self.test_scores = test_dict
+        self.train_scores = train_scores
+        self.test_scores = test_scores
         self.train_dict = dict(pred_avg = pred_avg,
                                pred_std = pred_std,
                                pred_coord = pred_coord,
@@ -150,8 +150,8 @@ class BayesianRegression:
                                train_coord = train_coord,
                                cond_number = cond_number,
                                cond_number_mask = cond_number_mask,
-                               **test_dict,
-                               **train_dict)
+                               **test_scores,
+                               **train_scores)
 
     def format_data(self,X,y=None,side=None):
 
